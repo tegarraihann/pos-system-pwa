@@ -48,9 +48,11 @@ class MenuVariantForm
                             ->minValue(0)
                             ->required(),
                         TextInput::make('stock')
-                            ->label('Stok')
+                            ->label('Stok (Total)')
                             ->numeric()
-                            ->minValue(0),
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText('Stok dihitung dari pergerakan stok per lokasi.'),
                         Toggle::make('is_active')
                             ->label('Aktif')
                             ->default(true),

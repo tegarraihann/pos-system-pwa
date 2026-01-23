@@ -36,4 +36,19 @@ class MenuVariant extends Model
     {
         return $this->hasOne(Recipe::class);
     }
+
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function stockMovementItems()
+    {
+        return $this->morphMany(StockMovementItem::class, 'item');
+    }
+
+    public function stockLevels()
+    {
+        return $this->morphMany(StockLevel::class, 'item');
+    }
 }

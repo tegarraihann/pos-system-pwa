@@ -38,4 +38,14 @@ class Ingredient extends Model
     {
         return $this->hasMany(RecipeItem::class);
     }
+
+    public function stockMovementItems()
+    {
+        return $this->morphMany(StockMovementItem::class, 'item');
+    }
+
+    public function stockLevels()
+    {
+        return $this->morphMany(StockLevel::class, 'item');
+    }
 }
