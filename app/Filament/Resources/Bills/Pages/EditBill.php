@@ -8,4 +8,9 @@ use Filament\Resources\Pages\EditRecord;
 class EditBill extends EditRecord
 {
     protected static string $resource = BillResource::class;
+
+    public function getMaxContentWidth(): ?string
+    {
+        return 'full';
+    }
 }

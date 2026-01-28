@@ -8,4 +8,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBill extends CreateRecord
 {
     protected static string $resource = BillResource::class;
+
+    public function getMaxContentWidth(): ?string
+    {
+        return 'full';
+    }
 }
