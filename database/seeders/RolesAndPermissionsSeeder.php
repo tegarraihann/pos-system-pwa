@@ -14,8 +14,13 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $guard = config('auth.defaults.guard', 'web');
 
-        $role = Role::firstOrCreate([
+        $adminRole = Role::firstOrCreate([
             'name' => 'admin',
+            'guard_name' => $guard,
+        ]);
+
+        $superAdminRole = Role::firstOrCreate([
+            'name' => 'super_admin',
             'guard_name' => $guard,
         ]);
 
@@ -26,10 +31,11 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $permissions = Permission::where('guard_name', $guard)->get();
         if ($permissions->isNotEmpty()) {
-            $role->syncPermissions($permissions);
+            $adminRole->syncPermissions($permissions);
+            $superAdminRole->syncPermissions($permissions);
         }
 
-        $user = User::firstOrCreate(
+        $adminUser = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
@@ -37,8 +43,20 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
 
-        if (method_exists($user, 'assignRole')) {
-            $user->assignRole($role);
+        if (method_exists($adminUser, 'assignRole')) {
+            $adminUser->assignRole($adminRole);
+        }
+
+        $superAdminUser = User::firstOrCreate(
+            ['email' => 'superadmin@example.com'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        if (method_exists($superAdminUser, 'assignRole')) {
+            $superAdminUser->assignRole($superAdminRole);
         }
     }
 }
