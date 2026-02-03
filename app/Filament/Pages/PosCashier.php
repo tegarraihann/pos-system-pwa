@@ -221,15 +221,17 @@ class PosCashier extends Page
                     'gateway_provider' => 'midtrans',
                 ]);
 
+                $gatewayOrderId = $order->order_number . '-' . $payment->id;
+
                 $payment->update([
-                    'gateway_ref' => $payment->gateway_ref ?: $order->order_number,
+                    'gateway_ref' => $gatewayOrderId,
                 ]);
 
                 return [$order, $payment];
             });
 
             $order->refresh();
-            $snap = app(MidtransService::class)->createSnapTransaction($order);
+            $snap = app(MidtransService::class)->createSnapTransaction($order, $payment->gateway_ref);
 
             if ($snap['token'] === '') {
                 throw new \RuntimeException('Snap token gagal dibuat.');

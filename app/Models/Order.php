@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Events\OrderCreated;
+use App\Events\OrderUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,6 +12,7 @@ class Order extends Model
     use HasFactory;
 
     public const STATUS_DRAFT = 'draft';
+    public const STATUS_RECEIVED = 'received';
     public const STATUS_QUEUED = 'queued';
     public const STATUS_PREPARING = 'preparing';
     public const STATUS_READY = 'ready';
@@ -40,6 +43,9 @@ class Order extends Model
         'service_total',
         'grand_total',
         'paid_total',
+        'received_at',
+        'ready_at',
+        'is_priority',
         'cancel_reason',
         'canceled_at',
         'created_by',
@@ -54,6 +60,9 @@ class Order extends Model
         'service_total' => 'decimal:2',
         'grand_total' => 'decimal:2',
         'paid_total' => 'decimal:2',
+        'received_at' => 'datetime',
+        'ready_at' => 'datetime',
+        'is_priority' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -65,6 +74,16 @@ class Order extends Model
 
             if (! $order->ordered_at) {
                 $order->ordered_at = now();
+            }
+        });
+
+        static::created(function (self $order): void {
+            event(new OrderCreated($order));
+        });
+
+        static::updated(function (self $order): void {
+            if ($order->wasChanged(['status', 'is_priority', 'received_at', 'ready_at'])) {
+                event(new OrderUpdated($order));
             }
         });
 

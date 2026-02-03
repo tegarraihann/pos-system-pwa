@@ -1,0 +1,16 @@
+{
+  "name": "POS System",
+  "short_name": "POS",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

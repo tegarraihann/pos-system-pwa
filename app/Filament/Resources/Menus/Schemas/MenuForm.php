@@ -28,6 +28,10 @@ class MenuForm
                             ->label('Nama Menu')
                             ->required()
                             ->maxLength(255),
+                        TextInput::make('category')
+                            ->label('Kategori')
+                            ->maxLength(100)
+                            ->placeholder('Makanan / Minuman'),
                         TextInput::make('unit')
                             ->label('Satuan')
                             ->maxLength(50),

@@ -27,16 +27,42 @@ class MidtransWebhookController extends Controller
             return response()->json(['message' => 'Invalid signature'], 403);
         }
 
-        $order = Order::query()->where('order_number', $orderId)->first();
-
-        if (! $order) {
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
         $transactionStatus = (string) ($payload['transaction_status'] ?? '');
         $fraudStatus = (string) ($payload['fraud_status'] ?? '');
         $transactionId = (string) ($payload['transaction_id'] ?? '');
         $paymentType = (string) ($payload['payment_type'] ?? '');
+
+        $payment = Payment::query()
+            ->where('gateway_provider', 'midtrans')
+            ->where('gateway_ref', $orderId)
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $payment && $transactionId !== '') {
+            $payment = Payment::query()
+                ->where('gateway_provider', 'midtrans')
+                ->where('gateway_ref', $transactionId)
+                ->orderByDesc('id')
+                ->first();
+        }
+
+        $order = $payment?->order;
+
+        if (! $order) {
+            $orderNumber = $orderId;
+
+            if (preg_match('/-\d+$/', $orderId)) {
+                $parts = explode('-', $orderId);
+                array_pop($parts);
+                $orderNumber = implode('-', $parts);
+            }
+
+            $order = Order::query()->where('order_number', $orderNumber)->first();
+        }
+
+        if (! $order) {
+            return response()->json(['message' => 'Order not found'], 404);
+        }
 
         $paymentStatus = match ($transactionStatus) {
             'capture' => $fraudStatus === 'accept' ? 'paid' : 'pending',
@@ -47,11 +73,6 @@ class MidtransWebhookController extends Controller
             'cancel' => 'canceled',
             default => 'pending',
         };
-
-        $payment = $order->payments()
-            ->where('gateway_provider', 'midtrans')
-            ->orderByDesc('id')
-            ->first();
 
         if (! $payment) {
             $payment = new Payment([
@@ -67,7 +88,7 @@ class MidtransWebhookController extends Controller
             'method' => $paymentType ?: $payment->method,
             'status' => $paymentStatus,
             'gateway_provider' => 'midtrans',
-            'gateway_ref' => $transactionId ?: $payment->gateway_ref,
+            'gateway_ref' => $payment->gateway_ref ?: $orderId,
             'paid_at' => $paymentStatus === 'paid' ? now() : null,
         ]);
 

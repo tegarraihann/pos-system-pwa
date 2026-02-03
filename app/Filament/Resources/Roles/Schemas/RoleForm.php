@@ -2,10 +2,13 @@
 
 namespace App\Filament\Resources\Roles\Schemas;
 
+use App\Models\Permission;
 use Closure;
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
@@ -26,6 +29,11 @@ class RoleForm
                         Section::make('User Permissions')
                             ->collapsible()
                             ->schema([
+                                self::selectAllCheckbox(
+                                    target: 'permissions_user',
+                                    label: 'Pilih semua User Permissions',
+                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:User'),
+                                ),
                                 self::permissionCheckboxList(
                                     name: 'permissions_user',
                                     label: 'User Permissions',
@@ -35,6 +43,11 @@ class RoleForm
                         Section::make('Role Permissions')
                             ->collapsible()
                             ->schema([
+                                self::selectAllCheckbox(
+                                    target: 'permissions_role',
+                                    label: 'Pilih semua Role Permissions',
+                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:Role'),
+                                ),
                                 self::permissionCheckboxList(
                                     name: 'permissions_role',
                                     label: 'Role Permissions',
@@ -44,6 +57,11 @@ class RoleForm
                         Section::make('Permission Permissions')
                             ->collapsible()
                             ->schema([
+                                self::selectAllCheckbox(
+                                    target: 'permissions_permission',
+                                    label: 'Pilih semua Permission Permissions',
+                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:Permission'),
+                                ),
                                 self::permissionCheckboxList(
                                     name: 'permissions_permission',
                                     label: 'Permission Permissions',
@@ -53,6 +71,26 @@ class RoleForm
                     ]),
 
             ]);
+    }
+
+    private static function selectAllCheckbox(
+        string $target,
+        string $label,
+        Closure $modifyQueryUsing,
+    ): Checkbox {
+        return Checkbox::make($target . '_all')
+            ->label($label)
+            ->live()
+            ->afterStateUpdated(static function (Set $set, ?bool $state) use ($target, $modifyQueryUsing): void {
+                $query = Permission::query()
+                    ->where('guard_name', config('auth.defaults.guard', 'web'));
+
+                $modifyQueryUsing($query);
+
+                $ids = $query->pluck('id')->map(static fn ($id): string => (string) $id)->all();
+
+                $set($target, $state ? $ids : []);
+            });
     }
 
     private static function permissionCheckboxList(

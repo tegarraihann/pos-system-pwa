@@ -34,6 +34,7 @@ class OrderInfolist
                             ->label('Status')
                             ->formatStateUsing(static fn (string $state): string => match ($state) {
                                 Order::STATUS_DRAFT => 'Draft',
+                                Order::STATUS_RECEIVED => 'Received',
                                 Order::STATUS_QUEUED => 'Queued',
                                 Order::STATUS_PREPARING => 'Preparing',
                                 Order::STATUS_READY => 'Ready',

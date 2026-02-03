@@ -42,6 +42,7 @@ class OrderForm
                             ->label('Status')
                             ->options([
                                 Order::STATUS_DRAFT => 'Draft',
+                                Order::STATUS_RECEIVED => 'Received',
                                 Order::STATUS_QUEUED => 'Queued',
                                 Order::STATUS_PREPARING => 'Preparing',
                                 Order::STATUS_READY => 'Ready',

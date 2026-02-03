@@ -24,6 +24,9 @@ class MenusTable
                     ->label('Nama Menu')
                     ->searchable()
                     ->sortable(),
+                TextColumn::make('category')
+                    ->label('Kategori')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('unit')
                     ->label('Satuan')
                     ->toggleable(isToggledHiddenByDefault: true),

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="POS">
+  <rect width="512" height="512" rx="96" fill="#111827"/>
+  <rect x="96" y="120" width="320" height="64" rx="16" fill="#f59e0b"/>
+  <rect x="96" y="216" width="320" height="176" rx="24" fill="#1f2937"/>
+  <circle cx="192" cy="304" r="32" fill="#f59e0b"/>
+  <circle cx="320" cy="304" r="32" fill="#f59e0b"/>
+  <rect x="120" y="248" width="272" height="32" rx="8" fill="#374151"/>
+  <rect x="120" y="344" width="272" height="16" rx="8" fill="#374151"/>
+</svg>

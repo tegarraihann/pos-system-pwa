@@ -19,6 +19,11 @@ class RolesAndPermissionsSeeder extends Seeder
             'guard_name' => $guard,
         ]);
 
+        Role::firstOrCreate([
+            'name' => 'kitchen',
+            'guard_name' => $guard,
+        ]);
+
         $permissions = Permission::where('guard_name', $guard)->get();
         if ($permissions->isNotEmpty()) {
             $role->syncPermissions($permissions);

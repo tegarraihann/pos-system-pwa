@@ -12,7 +12,7 @@ class MidtransService
     /**
      * @return array{token: string, redirect_url: string}
      */
-    public function createSnapTransaction(Order $order): array
+    public function createSnapTransaction(Order $order, ?string $orderId = null): array
     {
         $this->configure();
 
@@ -45,7 +45,7 @@ class MidtransService
 
         $payload = [
             'transaction_details' => [
-                'order_id' => $order->order_number,
+                'order_id' => $orderId ?: $order->order_number,
                 'gross_amount' => $grossAmount,
             ],
             'item_details' => $items,
