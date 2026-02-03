@@ -364,6 +364,7 @@ class PosDemoSeeder extends Seeder
         $locations = StockLocation::query()->pluck('id', 'code');
 
         $orderOne = Order::query()->create([
+            'order_number' => Order::generateOrderNumber(),
             'order_type' => Order::TYPE_DINE_IN,
             'status' => Order::STATUS_QUEUED,
             'customer_type' => Order::CUSTOMER_WALK_IN,
@@ -398,6 +399,7 @@ class PosDemoSeeder extends Seeder
         }
 
         $orderTwo = Order::query()->create([
+            'order_number' => Order::generateOrderNumber(),
             'order_type' => Order::TYPE_TAKE_AWAY,
             'status' => Order::STATUS_SERVED,
             'customer_type' => Order::CUSTOMER_MEMBER,
