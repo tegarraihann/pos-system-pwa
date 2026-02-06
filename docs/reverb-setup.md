@@ -1,70 +1,105 @@
-# Panduan Reverb (Realtime) Setelah Clone Project
+# Panduan Reverb + Domain Publik (Cloudflared Tunnel)
 
-Dokumen ini menjelaskan cara menyalakan fitur realtime (Reverb) dengan bahasa sederhana.
+Dokumen ini fokus ke **Reverb + domain publik** (tanpa setup aplikasi), karena instalasi dasar sudah dijelaskan di README.
 
-## Apa fungsi Reverb?
-Reverb membuat halaman seperti Kitchen Display update otomatis tanpa refresh.
+---
 
-## Langkah singkat (setelah clone)
-1) Jalankan aplikasi Laravel seperti biasa.  
-2) Jalankan Reverb di terminal terpisah.  
-3) Buka aplikasi di browser, dan pastikan realtime berjalan.  
-
-## Langkah detail
-1) **Salin file konfigurasi**
-   - Copy `.env.example` menjadi `.env`.
-
-2) **Isi bagian Reverb di `.env`**
-   Contoh nilai (sesuai setup publik):
-   ```
-   REVERB_APP_ID=local
-   REVERB_APP_KEY=local
-   REVERB_APP_SECRET=local
-   REVERB_HOST=reverb.livedemo.web.id
-   REVERB_PORT=443
-   REVERB_SCHEME=https
-   REVERB_SERVER_HOST=0.0.0.0
-   REVERB_SERVER_PORT=8081
-   ```
-
-3) **Cara membuat APP KEY/SECRET**
-   Gunakan perintah ini (sekali saja):
-   ```
-   php artisan reverb:install
-   ```
-   Perintah ini akan membuat `REVERB_APP_ID`, `REVERB_APP_KEY`, dan `REVERB_APP_SECRET` otomatis.
-   Jika sudah ada, kamu bisa tetap mengganti manual di `.env` sesuai kebutuhan.
-
-4) **Bersihkan cache konfigurasi**
-   ```
-   php artisan config:clear
-   ```
-
-5) **Jalankan Laravel**
-   ```
-   php artisan serve --port=8000
-   ```
-
-6) **Jalankan Reverb**
-   ```
-   php artisan reverb:start
-   ```
-
-## Cara cek realtime berjalan
-- Buka halaman Kitchen Display.
-- Buat order baru.
-- Jika kartu pesanan muncul otomatis, realtime sudah aktif.
-
-## Jika realtime tidak jalan
-Periksa hal ini:
-- Reverb masih berjalan di terminal.
-- Port Reverb sesuai dengan `.env`.
-- Tidak ada error di terminal Reverb.
-
-## Catatan penting
-Jika kamu memakai domain publik (bukan localhost), ganti:
+## Langkah 1 — Login Cloudflared
+Jika belum login, jalankan:
+```bash
+cloudflared tunnel login
 ```
-REVERB_HOST=domain-reverb-kamu
+Pilih domain yang akan dipakai.
+
+---
+
+## Langkah 2 — Buat tunnel
+Buat tunnel baru:
+```bash
+cloudflared tunnel create pos-system
+```
+Setelah berhasil, akan ada file JSON di:
+```
+C:\Users\<user>\.cloudflared\
+```
+Contoh: `pos-system.json`
+
+---
+
+## Langkah 3 — Hubungkan subdomain
+Jalankan:
+```bash
+cloudflared tunnel route dns pos-system pos.livedemo.web.id
+cloudflared tunnel route dns pos-system reverb.livedemo.web.id
+```
+> Ganti `livedemo.web.id` dengan domain kamu.
+
+---
+
+## Langkah 4 — Pastikan config.yml sudah ada
+Kamu sudah menaruh `config.yml`. Pastikan lokasinya:
+```
+C:\Users\<user>\.cloudflared\config.yml
+```
+Isi contohnya:
+```
+tunnel: pos-system
+credentials-file: C:\Users\<user>\.cloudflared\pos-system.json
+
+ingress:
+  - hostname: pos.livedemo.web.id
+    service: http://127.0.0.1:8000
+  - hostname: reverb.livedemo.web.id
+    service: http://127.0.0.1:8081
+  - service: http_status:404
+```
+
+---
+
+## Langkah 5 — Update `.env`
+Isi bagian ini agar sesuai domain publik:
+```
+APP_URL=https://pos.livedemo.web.id
+REVERB_HOST=reverb.livedemo.web.id
 REVERB_PORT=443
 REVERB_SCHEME=https
+REVERB_SERVER_HOST=0.0.0.0
+REVERB_SERVER_PORT=8081
 ```
+
+---
+
+## Langkah 6 — Jalankan semuanya
+Jalankan 3 terminal:
+
+1. **Laravel**
+```bash
+php artisan serve --port=8000
+```
+
+2. **Reverb**
+```bash
+php artisan reverb:start
+```
+
+3. **Tunnel**
+```bash
+cloudflared tunnel run pos-system
+```
+
+---
+
+## Cara cek berhasil
+1. Buka:
+```
+https://pos.livedemo.web.id/admin
+```
+2. Buat order baru.
+3. Di Kitchen Display, order harus muncul otomatis tanpa refresh.
+
+---
+
+## Catatan penting
+- Jika hanya **1 laptop aktif**, boleh pakai subdomain yang sama.
+- Jika **lebih dari 1 laptop aktif**, buat tunnel + subdomain baru.
+- Jika realtime mati, cek Reverb + tunnel masih jalan.

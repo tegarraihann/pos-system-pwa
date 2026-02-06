@@ -1,0 +1,9 @@
+tunnel: b96c761a-65aa-44d1-b06a-9296ae476a8e
+credentials-file: C:\Users\tegar\.cloudflared\b96c761a-65aa-44d1-b06a-9296ae476a8e.json
+
+ingress:
+  - hostname: pos.livedemo.web.id
+    service: http://127.0.0.1:8000
+  - hostname: reverb.livedemo.web.id
+    service: http://127.0.0.1:8081
+  - service: http_status:404
