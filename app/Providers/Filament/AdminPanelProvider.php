@@ -32,6 +32,13 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            ->navigationGroups([
+                'POS management',
+                'Product management',
+                'Recipe management',
+                'Inventory management',
+                'User management',
+            ])
             ->renderHook(\Filament\View\PanelsRenderHook::HEAD_END, fn () => view('partials.pwa-head'))
             ->renderHook(\Filament\View\PanelsRenderHook::BODY_END, fn () => view('partials.pwa-body'))
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
