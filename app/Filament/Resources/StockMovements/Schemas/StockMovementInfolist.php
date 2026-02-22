@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\StockMovements\Schemas;
 
+use App\Models\StockLocation;
 use App\Models\StockMovement;
 use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Infolists\Components\RepeatableEntry\TableColumn;
@@ -31,11 +32,17 @@ class StockMovementInfolist
                         TextEntry::make('movement_date')
                             ->label('Tanggal')
                             ->dateTime(),
+                        TextEntry::make('single_location')
+                            ->label('Lokasi')
+                            ->state(static fn (StockMovement $record): string => $record->toLocation?->name ?? $record->fromLocation?->name ?? '-')
+                            ->visible(static fn (): bool => ! StockLocation::isMultiLocationEnabled()),
                         TextEntry::make('fromLocation.name')
                             ->label('Lokasi Asal')
+                            ->visible(static fn (): bool => StockLocation::isMultiLocationEnabled())
                             ->placeholder('-'),
                         TextEntry::make('toLocation.name')
                             ->label('Lokasi Tujuan')
+                            ->visible(static fn (): bool => StockLocation::isMultiLocationEnabled())
                             ->placeholder('-'),
                         TextEntry::make('adjustment_type')
                             ->label('Tipe Adjustment')

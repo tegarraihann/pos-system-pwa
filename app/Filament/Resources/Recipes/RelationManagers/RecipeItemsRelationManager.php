@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 class RecipeItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'items';
+    protected static ?string $title = 'Bahan Resep';
 
     public function form(Schema $schema): Schema
     {
@@ -51,6 +52,7 @@ class RecipeItemsRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('quantity')
                     ->label('Takaran')
+                    ->numeric(decimalPlaces: 3)
                     ->sortable(),
                 TextColumn::make('ingredient.unit')
                     ->label('Satuan')

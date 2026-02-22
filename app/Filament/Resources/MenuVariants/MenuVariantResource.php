@@ -12,12 +12,12 @@ use App\Filament\Resources\MenuVariants\Tables\MenuVariantsTable;
 use App\Models\MenuVariant;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class MenuVariantResource extends Resource
+class MenuVariantResource extends BaseResource
 {
     protected static ?string $model = MenuVariant::class;
 
@@ -58,3 +58,5 @@ class MenuVariantResource extends Resource
         ];
     }
 }
+
+

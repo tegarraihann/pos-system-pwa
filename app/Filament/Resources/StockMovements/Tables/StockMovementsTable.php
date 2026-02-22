@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\StockMovements\Tables;
 
+use App\Models\StockLocation;
 use App\Models\StockMovement;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -33,9 +34,11 @@ class StockMovementsTable
                     ->sortable(),
                 TextColumn::make('fromLocation.name')
                     ->label('Lokasi Asal')
+                    ->visible(static fn (): bool => StockLocation::isMultiLocationEnabled())
                     ->placeholder('-'),
                 TextColumn::make('toLocation.name')
                     ->label('Lokasi Tujuan')
+                    ->visible(static fn (): bool => StockLocation::isMultiLocationEnabled())
                     ->placeholder('-'),
                 TextColumn::make('items_count')
                     ->label('Item')

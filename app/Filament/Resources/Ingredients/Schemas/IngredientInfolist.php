@@ -30,6 +30,9 @@ class IngredientInfolist
                         TextEntry::make('purchase_price')
                             ->label('Harga Beli')
                             ->placeholder('-'),
+                        TextEntry::make('reminder_stock')
+                            ->label('Reminder Stok Minimum')
+                            ->placeholder('-'),
                         TextEntry::make('is_active')
                             ->label('Aktif')
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Ya' : 'Tidak'),

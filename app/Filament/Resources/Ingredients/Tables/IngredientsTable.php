@@ -36,6 +36,11 @@ class IngredientsTable
                     ->label('Harga Beli')
                     ->money('IDR', locale: 'id')
                     ->sortable(),
+                TextColumn::make('reminder_stock')
+                    ->label('Reminder')
+                    ->numeric(decimalPlaces: 3)
+                    ->placeholder('-')
+                    ->sortable(),
                 IconColumn::make('is_active')
                     ->label('Aktif')
                     ->boolean(),

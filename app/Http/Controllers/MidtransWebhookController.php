@@ -98,9 +98,18 @@ class MidtransWebhookController extends Controller
 
         $payment->save();
 
+        $orderUpdate = [
+            'payment_method' => Order::PAYMENT_MIDTRANS,
+            'sync_status' => Order::SYNC_STATUS_SYNCED,
+            'synced_at' => now(),
+            'sync_error' => null,
+        ];
+
         if ($paymentStatus === 'paid' && $order->status === Order::STATUS_DRAFT) {
-            $order->update(['status' => Order::STATUS_QUEUED]);
+            $orderUpdate['status'] = Order::STATUS_QUEUED;
         }
+
+        $order->update($orderUpdate);
 
         return response()->json(['message' => 'OK']);
     }

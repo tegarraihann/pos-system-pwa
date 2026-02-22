@@ -34,7 +34,7 @@ class KitchenDisplay extends Page
             return false;
         }
 
-        return $user->hasRole(['admin', 'super_admin', 'kitchen']);
+        return $user->can('View:KitchenDisplay');
     }
 
     /**

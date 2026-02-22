@@ -18,15 +18,25 @@
         const installButton = document.getElementById('pwa-install-action');
         const closeButton = document.getElementById('pwa-install-close');
         const installedKey = 'pwa-installed';
+        const loginSessionId = @js(session()->getId());
+        const shownThisSessionKey = `pwa-install-shown:${loginSessionId}`;
 
         const isStandalone = () =>
             window.matchMedia('(display-mode: standalone)').matches ||
             window.navigator.standalone === true;
 
+        const hasShownInCurrentSession = () => sessionStorage.getItem(shownThisSessionKey) === '1';
+
+        const markShownInCurrentSession = () => {
+            sessionStorage.setItem(shownThisSessionKey, '1');
+        };
+
         const showBanner = () => {
-            if (!banner || isStandalone() || localStorage.getItem(installedKey) === '1') {
+            if (!banner || isStandalone() || localStorage.getItem(installedKey) === '1' || hasShownInCurrentSession()) {
                 return;
             }
+
+            markShownInCurrentSession();
             banner.style.display = 'block';
         };
 
@@ -66,6 +76,7 @@
 
         if (closeButton) {
             closeButton.addEventListener('click', () => {
+                markShownInCurrentSession();
                 hideBanner();
             });
         }

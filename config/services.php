@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'qz_tray' => [
+        'certificate' => env('QZ_TRAY_CERTIFICATE', ''),
+        'private_key' => env('QZ_TRAY_PRIVATE_KEY', ''),
+    ],
+
 ];

@@ -12,12 +12,12 @@ use App\Filament\Resources\Suppliers\Tables\SuppliersTable;
 use App\Models\Supplier;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class SupplierResource extends Resource
+class SupplierResource extends BaseResource
 {
     protected static ?string $model = Supplier::class;
 
@@ -58,3 +58,5 @@ class SupplierResource extends Resource
         ];
     }
 }
+
+

@@ -12,12 +12,12 @@ use App\Filament\Resources\Customers\Tables\CustomersTable;
 use App\Models\Customer;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class CustomerResource extends Resource
+class CustomerResource extends BaseResource
 {
     protected static ?string $model = Customer::class;
 
@@ -58,3 +58,5 @@ class CustomerResource extends Resource
         ];
     }
 }
+
+

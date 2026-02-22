@@ -12,12 +12,12 @@ use App\Filament\Resources\Ingredients\Tables\IngredientsTable;
 use App\Models\Ingredient;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class IngredientResource extends Resource
+class IngredientResource extends BaseResource
 {
     protected static ?string $model = Ingredient::class;
 
@@ -58,3 +58,5 @@ class IngredientResource extends Resource
         ];
     }
 }
+
+

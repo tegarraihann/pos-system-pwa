@@ -14,28 +14,43 @@ class CustomerForm
     {
         return $schema
             ->components([
-                Section::make('Customer')
+                Section::make('Informasi Customer')
+                    ->description('Data identitas customer untuk transaksi dan membership.')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         TextInput::make('code')
                             ->label('Kode Customer')
                             ->required()
                             ->maxLength(50)
-                            ->unique(Customer::class, 'code', ignoreRecord: true),
+                            ->unique(Customer::class, 'code', ignoreRecord: true)
+                            ->placeholder('Contoh: CUST-001'),
                         TextInput::make('name')
                             ->label('Nama Customer')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('Contoh: Budi Santoso'),
+                    ]),
+                Section::make('Kontak & Status')
+                    ->description('Kontak customer dan status member.')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
                         TextInput::make('phone')
                             ->label('No. Telepon')
-                            ->maxLength(30),
+                            ->tel()
+                            ->maxLength(30)
+                            ->placeholder('Contoh: 081234567890'),
                         TextInput::make('email')
                             ->label('Email')
                             ->email()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('contoh@domain.com'),
                         Toggle::make('is_member')
                             ->label('Member')
-                            ->default(false),
+                            ->default(false)
+                            ->inline(false)
+                            ->columnSpan(1),
                     ]),
             ]);
     }

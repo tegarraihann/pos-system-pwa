@@ -19,7 +19,9 @@ class OrderForm
     {
         return $schema
             ->components([
-                Section::make('Order')
+                Section::make('Informasi Order')
+                    ->description('Data utama order yang akan diproses oleh kasir dan kitchen.')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         TextInput::make('order_number')
@@ -29,7 +31,8 @@ class OrderForm
                             ->placeholder('Auto'),
                         DateTimePicker::make('ordered_at')
                             ->label('Waktu Order')
-                            ->default(now()),
+                            ->default(now())
+                            ->seconds(false),
                         Select::make('order_type')
                             ->label('Tipe Order')
                             ->options([
@@ -50,6 +53,26 @@ class OrderForm
                                 Order::STATUS_CANCELED => 'Canceled',
                             ])
                             ->required(),
+                        Select::make('stock_location_id')
+                            ->label('Lokasi Stok')
+                            ->options(fn (): array => StockLocation::query()
+                                ->where('is_active', true)
+                                ->orderBy('name')
+                                ->pluck('name', 'id')
+                                ->all())
+                            ->searchable()
+                            ->required(),
+                        TextInput::make('queue_number')
+                            ->label('Nomor Antrian')
+                            ->numeric()
+                            ->minValue(1)
+                            ->placeholder('Contoh: 12'),
+                    ]),
+                Section::make('Customer & Catatan')
+                    ->description('Informasi pelanggan dan detail tambahan order.')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
                         Select::make('customer_type')
                             ->label('Tipe Customer')
                             ->options([
@@ -66,60 +89,56 @@ class OrderForm
                                 ->all())
                             ->searchable()
                             ->visible(fn (Get $get): bool => $get('customer_type') === Order::CUSTOMER_MEMBER),
-                        Select::make('stock_location_id')
-                            ->label('Lokasi Stok')
-                            ->options(fn (): array => StockLocation::query()
-                                ->where('is_active', true)
-                                ->orderBy('name')
-                                ->pluck('name', 'id')
-                                ->all())
-                            ->searchable()
-                            ->required(),
                         TextInput::make('table_number')
                             ->label('Nomor Meja')
-                            ->maxLength(50),
-                        TextInput::make('queue_number')
-                            ->label('Nomor Antrian')
-                            ->numeric()
-                            ->minValue(1),
+                            ->maxLength(50)
+                            ->placeholder('Contoh: A12'),
                         Textarea::make('notes')
                             ->label('Catatan')
                             ->rows(3)
                             ->columnSpanFull(),
                     ]),
-                Section::make('Total')
+                Section::make('Ringkasan Total')
+                    ->description('Nilai total order. Beberapa field dihitung otomatis dari item dan pembayaran.')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         TextInput::make('subtotal')
                             ->label('Subtotal')
                             ->prefix('Rp')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false)
+                            ->placeholder('0'),
                         TextInput::make('discount_total')
                             ->label('Total Diskon')
                             ->prefix('Rp')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false)
+                            ->placeholder('0'),
                         TextInput::make('tax_total')
                             ->label('Pajak')
                             ->prefix('Rp')
                             ->numeric()
-                            ->minValue(0),
+                            ->minValue(0)
+                            ->placeholder('0'),
                         TextInput::make('service_total')
                             ->label('Service')
                             ->prefix('Rp')
                             ->numeric()
-                            ->minValue(0),
+                            ->minValue(0)
+                            ->placeholder('0'),
                         TextInput::make('grand_total')
                             ->label('Grand Total')
                             ->prefix('Rp')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false)
+                            ->placeholder('0'),
                         TextInput::make('paid_total')
                             ->label('Total Dibayar')
                             ->prefix('Rp')
                             ->disabled()
-                            ->dehydrated(false),
+                            ->dehydrated(false)
+                            ->placeholder('0'),
                     ]),
             ]);
     }

@@ -6,6 +6,7 @@ use App\Models\Order;
 use Illuminate\Support\Str;
 use Midtrans\Config;
 use Midtrans\Snap;
+use Midtrans\Transaction;
 
 class MidtransService
 {
@@ -62,6 +63,22 @@ class MidtransService
             'token' => $transaction->token ?? ($transaction['token'] ?? ''),
             'redirect_url' => $transaction->redirect_url ?? ($transaction['redirect_url'] ?? ''),
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getTransactionStatus(string $orderId): array
+    {
+        $this->configure();
+
+        $response = Transaction::status($orderId);
+
+        if (is_array($response)) {
+            return $response;
+        }
+
+        return (array) $response;
     }
 
     protected function configure(): void

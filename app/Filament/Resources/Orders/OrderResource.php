@@ -6,7 +6,6 @@ use App\Filament\Resources\Orders\Pages\CreateOrder;
 use App\Filament\Resources\Orders\Pages\EditOrder;
 use App\Filament\Resources\Orders\Pages\ListOrders;
 use App\Filament\Resources\Orders\Pages\ViewOrder;
-use App\Filament\Resources\Orders\RelationManagers\BillsRelationManager;
 use App\Filament\Resources\Orders\RelationManagers\OrderItemsRelationManager;
 use App\Filament\Resources\Orders\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Orders\Schemas\OrderForm;
@@ -15,12 +14,12 @@ use App\Filament\Resources\Orders\Tables\OrdersTable;
 use App\Models\Order;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class OrderResource extends Resource
+class OrderResource extends BaseResource
 {
     protected static ?string $model = Order::class;
 
@@ -49,7 +48,6 @@ class OrderResource extends Resource
         return [
             OrderItemsRelationManager::class,
             PaymentsRelationManager::class,
-            BillsRelationManager::class,
         ];
     }
 
@@ -63,3 +61,5 @@ class OrderResource extends Resource
         ];
     }
 }
+
+

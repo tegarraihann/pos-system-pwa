@@ -1,147 +1,221 @@
 # POS System PWA
 
-Aplikasi POS berbasis Laravel + Filament, lengkap dengan manajemen user/role, KDS, realtime (Reverb), dan integrasi pembayaran (opsional).
+Aplikasi POS berbasis Laravel 12 + Filament 4.
+Fitur utama: POS kasir, KDS, manajemen stok, role/permission, realtime (Reverb), PWA, dan Midtrans (opsional).
 
-## Ringkasan Fitur
-- POS kasir + antrian order
+## Fitur Utama
+- POS Kasir
+- Kitchen Display
 - Manajemen menu, varian, resep, bahan baku
-- Manajemen user/role/permission (Spatie + Filament Shield)
-- Kitchen Display System (KDS)
+- Manajemen user, role, permission (Spatie + Shield)
+- Absensi kasir
 - Realtime (opsional)
-- PWA (opsional)
 - Midtrans (opsional)
+- PWA (opsional)
+- Cetak struk QZ Tray (opsional)
 
----
-
-## Syarat Singkat
-Yang dibutuhkan sebelum mulai:
-- PHP 8.2+
+## Kebutuhan Sistem
+- PHP 8.2 atau lebih baru
 - Composer
 - MySQL/MariaDB
+- Node.js + npm
 - Git
-- (Opsional) Node.js + npm untuk build asset
 
----
+## Instalasi dari Nol (Urutan Aman)
+Jalankan dari terminal di folder project.
 
-## Instalasi & Setup (Lengkap dari Nol)
-Jalankan perintah berikut berurutan di folder project:
-
-1) Install dependency
+### 1) Clone project
 ```bash
-composer install
+git clone https://github.com/tegarraihann/pos-system-pwa.git
+cd pos-system-pwa
 ```
 
-2) Buat file konfigurasi dasar
+### 2) Install dependency backend dan frontend
+```bash
+composer install
+npm install
+```
+
+### 3) Buat file `.env`
+PowerShell (Windows):
+```powershell
+Copy-Item .env.example .env
+```
+
+Bash:
 ```bash
 cp .env.example .env
+```
+
+### 4) Generate app key
+```bash
 php artisan key:generate
 ```
 
-3) Isi koneksi database di `.env`
+### 5) Atur koneksi database di `.env`
 Contoh:
 ```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_DATABASE=pos-system
 DB_USERNAME=root
 DB_PASSWORD=
 ```
 
-4) Buat tabel database
+Pastikan database `pos-system` sudah dibuat di MySQL.
+
+### 6) Jalankan migrasi
 ```bash
 php artisan migrate
 ```
 
-5) Generate permission & policy (wajib)
+### 7) Generate policy + permission Shield (wajib)
 ```bash
 php artisan shield:generate --all --panel=admin
 ```
-Saat ditanya, pilih **Policies & Permissions**.
+Saat ada pertanyaan:
+- `Would you like to select what to generate?` -> `yes`
+- `What do you want to generate?` -> `Policies & Permissions`
 
-6) Isi role + super admin
+### 8) Seed data role, user, dan data awal
 ```bash
-php artisan db:seed --class=RolesAndPermissionsSeeder
+php artisan db:seed
 ```
 
-7) (Opsional) Data demo
+Seeder default akan menjalankan:
+- `RolesAndPermissionsSeeder`
+- `StockLocationsSeeder`
+- `PosDemoSeeder`
+
+### 9) Reset cache permission dan cache aplikasi
 ```bash
-php artisan db:seed --class=PosDemoSeeder
+php artisan permission:cache-reset
+php artisan optimize:clear
 ```
 
-8) Link storage untuk upload gambar
+### 10) Link storage (wajib untuk upload gambar)
 ```bash
 php artisan storage:link
 ```
 
-9) Bersihkan cache
+### 11) Jalankan aplikasi
+Terminal 1:
 ```bash
-php artisan optimize:clear
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-10) Jalankan aplikasi
+Terminal 2:
 ```bash
-php artisan serve
+npm run dev
 ```
-Buka:
-```
+
+Lalu buka:
+```text
 http://127.0.0.1:8000/admin
 ```
 
----
+## Akun Login Default
+- Super Admin
+  - Email: `superadmin@example.com`
+  - Password: `password`
+- Admin
+  - Email: `admin@example.com`
+  - Password: `password`
 
-## Akun Awal (Default)
-Login admin awal:
-- Email: `superadmin@example.com`
-- Password: `password`
+## Setup User Baru
+Jika ingin buat user baru:
+```bash
+php artisan make:filament-user
+```
 
-> Jika menu **Users** tidak muncul, pastikan langkah 5 & 6 dijalankan, lalu login ulang.
+Setelah user dibuat, masuk sebagai super admin lalu:
+- Buka menu `Users`
+- Set role user (misalnya `kasir`, `kitchen`, `admin`)
 
----
-
-## Mengatur Role (Admin / Kasir / Kitchen)
-Masuk sebagai super admin ? menu **Roles** ? pilih role ? centang permission ? **Save changes**.
-
-Pastikan user yang login sudah diberi role yang benar.
-
----
-
-## Realtime (Opsional)
-Jika ingin realtime untuk KDS dan order:
+## Menjalankan Realtime (Opsional)
 ```bash
 php artisan reverb:start
 ```
-Pastikan `.env` sudah terisi `REVERB_*`.
 
----
+Jika ingin akses publik via domain + cloudflared tunnel, ikuti:
+- `docs/reverb-setup.md`
 
-## Pembayaran Midtrans (Opsional)
+## Menjalankan Midtrans (Opsional)
 Isi `.env`:
 ```env
 MIDTRANS_SERVER_KEY=...
 MIDTRANS_CLIENT_KEY=...
 MIDTRANS_IS_PRODUCTION=false
+MIDTRANS_SANITIZE=true
+MIDTRANS_3DS=true
 ```
-Jika pakai webhook:
+
+Lalu set webhook Midtrans ke:
+```text
+https://domain-anda/midtrans/notification
 ```
-https://domainkamu.com/midtrans/notification
+
+Panduan detail:
+- `docs/midtrans.md`
+
+## Menjalankan PWA dan Offline Cash (Opsional)
+Panduan:
+- `docs/pwa-offline.md`
+
+## Cetak Struk QZ Tray (Opsional)
+Jika memakai QZ Tray, siapkan:
+- file certificate
+- private key
+- env untuk QZ
+
+Lalu jalankan build/dev frontend seperti biasa.
+
+## Quick Command Checklist
+Jika ingin ringkas, ini urutan command inti:
+```bash
+composer install
+npm install
+php artisan key:generate
+php artisan migrate
+php artisan shield:generate --all --panel=admin
+php artisan db:seed
+php artisan permission:cache-reset
+php artisan storage:link
+php artisan optimize:clear
+php artisan serve --host=127.0.0.1 --port=8000
 ```
-> Untuk produksi, wajib HTTPS.
 
----
+## Troubleshooting
 
-## PWA (Opsional)
-Jika PWA aktif, saat dibuka dari browser:
-- Akan muncul opsi �Install� (tergantung perangkat/browser)
-- Jika tidak muncul, gunakan banner install yang tampil otomatis
+### Menu `Users` tidak muncul
+Jalankan ulang:
+```bash
+php artisan shield:generate --all --panel=admin
+php artisan db:seed --class=RolesAndPermissionsSeeder
+php artisan permission:cache-reset
+php artisan optimize:clear
+```
+Lalu logout dan login lagi.
 
----
+### Reverb gagal start (port dipakai)
+Ganti port Reverb di `.env`, contoh:
+```env
+REVERB_SERVER_PORT=8081
+```
 
-## Jika Ada Kendala
-Contoh kendala umum:
-- Menu Users tidak muncul ? ulangi langkah 5�6, lalu login ulang.
-- Data demo gagal ? pastikan migrasi lengkap.
-- Upload gambar gagal ? jalankan `php artisan storage:link`.
+### `Invalid request (Unsupported SSL request)` saat `php artisan serve`
+Biasanya terjadi karena URL HTTPS diarahkan ke server HTTP lokal.
+Gunakan URL `http://127.0.0.1:8000` untuk akses lokal biasa.
 
----
+### Midtrans sudah paid tapi status order belum berubah
+- Pastikan webhook URL benar dan aktif
+- Cek endpoint `POST /midtrans/notification`
+- Cek log: `storage/logs/laravel.log`
 
-## Catatan
-Dokumentasi tambahan tersedia di folder `docs/`.
-Jika butuh panduan khusus (PWA, Reverb, Midtrans), buka file terkait di sana.
+## Dokumentasi Tambahan
+- `docs/filament-setup.md`
+- `docs/pos.md`
+- `docs/midtrans.md`
+- `docs/reverb-setup.md`
+- `docs/pwa-offline.md`

@@ -16,11 +16,13 @@ class Ingredient extends Model
         'ingredient_category_id',
         'supplier_id',
         'purchase_price',
+        'reminder_stock',
         'is_active',
     ];
 
     protected $casts = [
         'purchase_price' => 'decimal:2',
+        'reminder_stock' => 'decimal:3',
         'is_active' => 'boolean',
     ];
 

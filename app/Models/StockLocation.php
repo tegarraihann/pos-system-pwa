@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class StockLocation extends Model
 {
@@ -33,5 +34,32 @@ class StockLocation extends Model
     public function toMovements()
     {
         return $this->hasMany(StockMovement::class, 'to_location_id');
+    }
+
+    public static function isMultiLocationEnabled(): bool
+    {
+        return (bool) config('stock.multi_location', true);
+    }
+
+    public static function getDefaultLocationCode(): string
+    {
+        return (string) config('stock.default_location_code', 'GUDANG');
+    }
+
+    public static function resolveDefaultLocation(): ?self
+    {
+        return static::query()
+            ->where('code', static::getDefaultLocationCode())
+            ->where('is_active', true)
+            ->first()
+            ?? static::query()
+                ->where('is_active', true)
+                ->orderBy('id')
+                ->first();
+    }
+
+    public static function activeQuery(): Builder
+    {
+        return static::query()->where('is_active', true);
     }
 }

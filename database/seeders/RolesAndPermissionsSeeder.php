@@ -24,15 +24,67 @@ class RolesAndPermissionsSeeder extends Seeder
             'guard_name' => $guard,
         ]);
 
-        Role::firstOrCreate([
+        $kasirRole = Role::firstOrCreate([
+            'name' => 'kasir',
+            'guard_name' => $guard,
+        ]);
+
+        $kitchenRole = Role::firstOrCreate([
             'name' => 'kitchen',
             'guard_name' => $guard,
         ]);
+
+        collect([
+            'View:PosCashier',
+            'View:KitchenDisplay',
+            'CheckIn:Attendance',
+            'CheckOut:Attendance',
+            'Create:Attendance',
+            'Delete:Attendance',
+            'ForceDelete:Attendance',
+            'ForceDeleteAny:Attendance',
+            'Reorder:Attendance',
+            'Replicate:Attendance',
+            'Restore:Attendance',
+            'RestoreAny:Attendance',
+            'Update:Attendance',
+            'View:Attendance',
+            'ViewAny:Attendance',
+        ])->each(function (string $permissionName) use ($guard): void {
+            Permission::firstOrCreate([
+                'name' => $permissionName,
+                'guard_name' => $guard,
+            ]);
+        });
 
         $permissions = Permission::where('guard_name', $guard)->get();
         if ($permissions->isNotEmpty()) {
             $adminRole->syncPermissions($permissions);
             $superAdminRole->syncPermissions($permissions);
+        }
+
+        $permissionByName = $permissions->keyBy('name');
+
+        $kasirPermissions = collect([
+            'View:PosCashier',
+            'CheckIn:Attendance',
+            'CheckOut:Attendance',
+        ])->map(fn (string $name) => $permissionByName->get($name))
+            ->filter()
+            ->values();
+
+        if ($kasirPermissions->isNotEmpty()) {
+            $kasirRole->syncPermissions($kasirPermissions);
+        }
+
+        $kitchenPermissions = collect([
+            'View:KitchenDisplay',
+        ])->map(fn (string $name) => $permissionByName->get($name))
+            ->filter()
+            ->values();
+
+        if ($kitchenPermissions->isNotEmpty()) {
+            $kitchenRole->syncPermissions($kitchenPermissions);
         }
 
         $adminUser = User::firstOrCreate(

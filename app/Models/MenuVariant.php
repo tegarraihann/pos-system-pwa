@@ -19,12 +19,14 @@ class MenuVariant extends Model
         'price',
         'is_active',
         'stock',
+        'reminder_stock',
     ];
 
     protected $casts = [
         'price' => 'decimal:2',
         'is_active' => 'boolean',
         'stock' => 'integer',
+        'reminder_stock' => 'decimal:3',
     ];
 
     public function menu()

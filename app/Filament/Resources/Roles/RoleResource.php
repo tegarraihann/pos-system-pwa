@@ -12,12 +12,12 @@ use App\Filament\Resources\Roles\Tables\RolesTable;
 use App\Models\Role;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class RoleResource extends Resource
+class RoleResource extends BaseResource
 {
     protected static ?string $model = Role::class;
 
@@ -58,3 +58,5 @@ class RoleResource extends Resource
         ];
     }
 }
+
+

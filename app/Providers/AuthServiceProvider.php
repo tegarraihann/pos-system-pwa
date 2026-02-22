@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Attendance;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
+use App\Policies\AttendancePolicy;
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\UserPolicy;
@@ -18,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        Attendance::class => AttendancePolicy::class,
         User::class => UserPolicy::class,
         Role::class => RolePolicy::class,
         Permission::class => PermissionPolicy::class,

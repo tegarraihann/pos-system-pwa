@@ -5,7 +5,9 @@ namespace App\Filament\Resources\StockMovements\Schemas;
 use App\Models\Ingredient;
 use App\Models\MenuVariant;
 use App\Models\StockMovement;
+use App\Models\StockLocation;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -26,14 +28,35 @@ class StockMovementForm
                     ->schema([
                         Select::make('type')
                             ->label('Jenis Pergerakan')
-                            ->options([
-                                StockMovement::TYPE_IN => 'Stock In',
-                                StockMovement::TYPE_OUT => 'Stock Out',
-                                StockMovement::TYPE_ADJUSTMENT => 'Adjustment',
-                                StockMovement::TYPE_TRANSFER => 'Transfer',
-                            ])
+                            ->options(static function (Get $get): array {
+                                $options = [
+                                    StockMovement::TYPE_IN => 'Stock In',
+                                    StockMovement::TYPE_OUT => 'Stock Out',
+                                    StockMovement::TYPE_ADJUSTMENT => 'Adjustment',
+                                ];
+
+                                if (StockLocation::isMultiLocationEnabled() || $get('type') === StockMovement::TYPE_TRANSFER) {
+                                    $options[StockMovement::TYPE_TRANSFER] = 'Transfer';
+                                }
+
+                                return $options;
+                            })
                             ->required()
                             ->live()
+                            ->columnSpanFull(),
+                        Placeholder::make('single_location_notice')
+                            ->label('Mode Lokasi')
+                            ->content(static function (): string {
+                                if (StockLocation::isMultiLocationEnabled()) {
+                                    return '';
+                                }
+
+                                $location = StockLocation::resolveDefaultLocation();
+                                $locationLabel = $location ? "{$location->name} ({$location->code})" : 'belum diset';
+
+                                return "Lokasi stok menggunakan mode tunggal. Semua pergerakan otomatis memakai lokasi default: {$locationLabel}.";
+                            })
+                            ->visible(static fn (): bool => ! StockLocation::isMultiLocationEnabled())
                             ->columnSpanFull(),
                         DateTimePicker::make('movement_date')
                             ->label('Tanggal')
@@ -53,12 +76,12 @@ class StockMovementForm
                             )
                             ->searchable()
                             ->preload()
-                            ->visible(fn (Get $get): bool => in_array($get('type'), [
+                            ->visible(fn (Get $get): bool => StockLocation::isMultiLocationEnabled() && in_array($get('type'), [
                                 StockMovement::TYPE_OUT,
                                 StockMovement::TYPE_TRANSFER,
                                 StockMovement::TYPE_ADJUSTMENT,
                             ], true))
-                            ->required(fn (Get $get): bool => in_array($get('type'), [
+                            ->required(fn (Get $get): bool => StockLocation::isMultiLocationEnabled() && in_array($get('type'), [
                                 StockMovement::TYPE_OUT,
                                 StockMovement::TYPE_TRANSFER,
                                 StockMovement::TYPE_ADJUSTMENT,
@@ -73,11 +96,11 @@ class StockMovementForm
                             )
                             ->searchable()
                             ->preload()
-                            ->visible(fn (Get $get): bool => in_array($get('type'), [
+                            ->visible(fn (Get $get): bool => StockLocation::isMultiLocationEnabled() && in_array($get('type'), [
                                 StockMovement::TYPE_IN,
                                 StockMovement::TYPE_TRANSFER,
                             ], true))
-                            ->required(fn (Get $get): bool => in_array($get('type'), [
+                            ->required(fn (Get $get): bool => StockLocation::isMultiLocationEnabled() && in_array($get('type'), [
                                 StockMovement::TYPE_IN,
                                 StockMovement::TYPE_TRANSFER,
                             ], true))

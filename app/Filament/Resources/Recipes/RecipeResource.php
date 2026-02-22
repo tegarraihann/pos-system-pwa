@@ -13,12 +13,13 @@ use App\Filament\Resources\Recipes\Tables\RecipesTable;
 use App\Models\Recipe;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
-class RecipeResource extends Resource
+class RecipeResource extends BaseResource
 {
     protected static ?string $model = Recipe::class;
 
@@ -26,6 +27,22 @@ class RecipeResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Recipe management';
 
     protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getRecordTitle(?Model $record): string | null
+    {
+        if (! $record instanceof Recipe) {
+            return parent::getRecordTitle($record);
+        }
+
+        $variantCode = $record->menuVariant?->kd_varian;
+        $menuName = $record->menuVariant?->menu?->name;
+
+        if ($variantCode && $menuName) {
+            return "{$menuName} - {$variantCode}";
+        }
+
+        return $variantCode ?: parent::getRecordTitle($record);
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -59,3 +76,5 @@ class RecipeResource extends Resource
         ];
     }
 }
+
+

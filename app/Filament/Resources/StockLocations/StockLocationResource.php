@@ -12,12 +12,12 @@ use App\Filament\Resources\StockLocations\Tables\StockLocationsTable;
 use App\Models\StockLocation;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class StockLocationResource extends Resource
+class StockLocationResource extends BaseResource
 {
     protected static ?string $model = StockLocation::class;
 
@@ -25,6 +25,11 @@ class StockLocationResource extends Resource
     protected static string|UnitEnum|null $navigationGroup = 'Inventory management';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return StockLocation::isMultiLocationEnabled() && parent::shouldRegisterNavigation();
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -58,3 +63,5 @@ class StockLocationResource extends Resource
         ];
     }
 }
+
+

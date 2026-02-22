@@ -12,19 +12,34 @@ use App\Filament\Resources\StockMovements\Tables\StockMovementsTable;
 use App\Models\StockMovement;
 use BackedEnum;
 use UnitEnum;
-use Filament\Resources\Resource;
+use App\Filament\Resources\BaseResource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
-class StockMovementResource extends Resource
+class StockMovementResource extends BaseResource
 {
     protected static ?string $model = StockMovement::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArrowsRightLeft;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
     protected static string|UnitEnum|null $navigationGroup = 'Inventory management';
 
     protected static ?string $recordTitleAttribute = 'reference_no';
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Stock Management';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Stock Management';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Stock Management';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -58,3 +73,5 @@ class StockMovementResource extends Resource
         ];
     }
 }
+
+

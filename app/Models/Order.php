@@ -26,6 +26,13 @@ class Order extends Model
     public const CUSTOMER_WALK_IN = 'walk_in';
     public const CUSTOMER_MEMBER = 'member';
 
+    public const PAYMENT_CASH = 'cash';
+    public const PAYMENT_MIDTRANS = 'midtrans';
+
+    public const SYNC_STATUS_SYNCED = 'synced';
+    public const SYNC_STATUS_PENDING = 'pending_sync';
+    public const SYNC_STATUS_FAILED = 'failed_sync';
+
     protected $fillable = [
         'order_number',
         'ordered_at',
@@ -33,6 +40,11 @@ class Order extends Model
         'status',
         'customer_type',
         'customer_id',
+        'payment_method',
+        'sync_status',
+        'client_txn_id',
+        'synced_at',
+        'sync_error',
         'stock_location_id',
         'table_number',
         'queue_number',
@@ -60,6 +72,7 @@ class Order extends Model
         'service_total' => 'decimal:2',
         'grand_total' => 'decimal:2',
         'paid_total' => 'decimal:2',
+        'synced_at' => 'datetime',
         'received_at' => 'datetime',
         'ready_at' => 'datetime',
         'is_priority' => 'boolean',
@@ -78,12 +91,12 @@ class Order extends Model
         });
 
         static::created(function (self $order): void {
-            event(new OrderCreated($order));
+            self::dispatchRealtimeEventSafely(new OrderCreated($order));
         });
 
         static::updated(function (self $order): void {
             if ($order->wasChanged(['status', 'is_priority', 'received_at', 'ready_at'])) {
-                event(new OrderUpdated($order));
+                self::dispatchRealtimeEventSafely(new OrderUpdated($order));
             }
         });
 
@@ -91,6 +104,15 @@ class Order extends Model
             $order->recalculateTotals();
             $order->refreshPaidTotal();
         });
+    }
+
+    protected static function dispatchRealtimeEventSafely(object $event): void
+    {
+        try {
+            event($event);
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
     }
 
     public static function generateOrderNumber(): string
@@ -131,11 +153,6 @@ class Order extends Model
     public function payments()
     {
         return $this->hasMany(Payment::class);
-    }
-
-    public function bills()
-    {
-        return $this->hasMany(Bill::class);
     }
 
     public function creator()

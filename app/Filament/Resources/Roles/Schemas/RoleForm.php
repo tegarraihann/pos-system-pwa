@@ -11,66 +11,92 @@ use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Str;
 
 class RoleForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $components = [
+            Hidden::make('guard_name')
+                ->default(config('auth.defaults.guard', 'web')),
+            TextInput::make('name')
+                ->required()
+                ->maxLength(255),
+        ];
+
+        foreach (self::permissionGroups() as $groupKey => $group) {
+            $filterQuery = static function ($query) use ($group): void {
+                $query->whereIn('name', $group['names']);
+            };
+
+            $components[] = Section::make($group['label'] . ' Permissions')
+                ->collapsible()
+                ->schema([
+                    self::selectAllCheckbox(
+                        target: 'permissions_' . $groupKey,
+                        label: 'Pilih semua ' . $group['label'] . ' Permissions',
+                        modifyQueryUsing: $filterQuery,
+                    ),
+                    self::permissionCheckboxList(
+                        name: 'permissions_' . $groupKey,
+                        label: $group['label'] . ' Permissions',
+                        modifyQueryUsing: $filterQuery,
+                    ),
+                ]);
+        }
+
         return $schema
             ->components([
                 Section::make('Role')
                     ->columnSpanFull()
-                    ->schema([
-                        Hidden::make('guard_name')
-                            ->default(config('auth.defaults.guard', 'web')),
-                        TextInput::make('name')
-                            ->required()
-                            ->maxLength(255),
-                        Section::make('User Permissions')
-                            ->collapsible()
-                            ->schema([
-                                self::selectAllCheckbox(
-                                    target: 'permissions_user',
-                                    label: 'Pilih semua User Permissions',
-                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:User'),
-                                ),
-                                self::permissionCheckboxList(
-                                    name: 'permissions_user',
-                                    label: 'User Permissions',
-                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:User'),
-                                ),
-                            ]),
-                        Section::make('Role Permissions')
-                            ->collapsible()
-                            ->schema([
-                                self::selectAllCheckbox(
-                                    target: 'permissions_role',
-                                    label: 'Pilih semua Role Permissions',
-                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:Role'),
-                                ),
-                                self::permissionCheckboxList(
-                                    name: 'permissions_role',
-                                    label: 'Role Permissions',
-                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:Role'),
-                                ),
-                            ]),
-                        Section::make('Permission Permissions')
-                            ->collapsible()
-                            ->schema([
-                                self::selectAllCheckbox(
-                                    target: 'permissions_permission',
-                                    label: 'Pilih semua Permission Permissions',
-                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:Permission'),
-                                ),
-                                self::permissionCheckboxList(
-                                    name: 'permissions_permission',
-                                    label: 'Permission Permissions',
-                                    modifyQueryUsing: static fn ($query) => $query->where('name', 'like', '%:Permission'),
-                                ),
-                            ]),
-                    ]),
+                    ->schema($components),
 
             ]);
+    }
+
+    /**
+     * @return array<string, array{label:string, names:array<int, string>}>
+     */
+    private static function permissionGroups(): array
+    {
+        $guard = config('auth.defaults.guard', 'web');
+
+        /** @var array<int, string> $permissionNames */
+        $permissionNames = Permission::query()
+            ->where('guard_name', $guard)
+            ->orderBy('name')
+            ->pluck('name')
+            ->all();
+
+        $groups = [];
+
+        foreach ($permissionNames as $permissionName) {
+            $label = self::extractGroupLabelFromPermission($permissionName);
+            $key = Str::slug($label, '_');
+
+            if (! isset($groups[$key])) {
+                $groups[$key] = [
+                    'label' => $label,
+                    'names' => [],
+                ];
+            }
+
+            $groups[$key]['names'][] = $permissionName;
+        }
+
+        ksort($groups);
+
+        return $groups;
+    }
+
+    private static function extractGroupLabelFromPermission(string $permissionName): string
+    {
+        [$action, $target] = array_pad(explode(':', $permissionName, 2), 2, null);
+
+        $resolved = trim((string) ($target ?: $action));
+
+        return $resolved !== '' ? $resolved : 'General';
     }
 
     private static function selectAllCheckbox(

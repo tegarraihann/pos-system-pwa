@@ -4,8 +4,10 @@ namespace App\Filament\Resources\Orders\Pages;
 
 use App\Filament\Resources\Orders\OrderResource;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Support\Enums\Width;
 
 class ViewOrder extends ViewRecord
 {
     protected static string $resource = OrderResource::class;
+    protected Width | string | null $maxContentWidth = Width::FiveExtraLarge;
 }
