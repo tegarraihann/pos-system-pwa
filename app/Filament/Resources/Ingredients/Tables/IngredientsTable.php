@@ -15,6 +15,7 @@ class IngredientsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Cari bahan baku...')
             ->columns([
                 TextColumn::make('code')
                     ->label('Kode')
@@ -45,6 +46,7 @@ class IngredientsTable
                     ->label('Aktif')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -53,12 +55,15 @@ class IngredientsTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->label('Detail'),
+                EditAction::make()
+                    ->label('Ubah'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->label('Hapus terpilih'),
                 ]),
             ]);
     }

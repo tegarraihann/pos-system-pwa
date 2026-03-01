@@ -23,22 +23,24 @@ class StockMovementResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedArchiveBox;
     protected static string|UnitEnum|null $navigationGroup = 'Inventory management';
+    protected static ?string $navigationLabel = 'Manajemen Stok';
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'reference_no';
 
     public static function getNavigationLabel(): string
     {
-        return 'Stock Management';
+        return 'Manajemen Stok';
     }
 
     public static function getModelLabel(): string
     {
-        return 'Stock Management';
+        return 'Manajemen Stok';
     }
 
     public static function getPluralModelLabel(): string
     {
-        return 'Stock Management';
+        return 'Manajemen Stok';
     }
 
     public static function form(Schema $schema): Schema

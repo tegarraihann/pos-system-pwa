@@ -1,10 +1,10 @@
-# Panduan Reverb + Domain Publik (Cloudflared Tunnel)
+ï»¿# Panduan Reverb + Domain Publik (Cloudflared Tunnel)
 
-Dokumen ini fokus ke **Reverb + domain publik** (tanpa setup aplikasi), karena instalasi dasar sudah dijelaskan di README.
+Dokumen ini fokus ke Reverb + domain publik (tanpa setup aplikasi), karena instalasi dasar sudah dijelaskan di README.
 
 ---
 
-## Langkah 1 — Login Cloudflared
+## Langkah 1 - Login Cloudflared
 Jika belum login, jalankan:
 ```bash
 cloudflared tunnel login
@@ -13,7 +13,7 @@ Pilih domain yang akan dipakai.
 
 ---
 
-## Langkah 2 — Buat tunnel
+## Langkah 2 - Buat tunnel
 Buat tunnel baru:
 ```bash
 cloudflared tunnel create pos-system
@@ -26,17 +26,17 @@ Contoh: `pos-system.json`
 
 ---
 
-## Langkah 3 — Hubungkan subdomain
+## Langkah 3 - Hubungkan subdomain
 Jalankan:
 ```bash
 cloudflared tunnel route dns pos-system pos.livedemo.web.id
 cloudflared tunnel route dns pos-system reverb.livedemo.web.id
 ```
-> Ganti `livedemo.web.id` dengan domain kamu.
+Ganti `livedemo.web.id` dengan domain kamu.
 
 ---
 
-## Langkah 4 — Pastikan config.yml sudah ada
+## Langkah 4 - Pastikan config.yml sudah ada
 Kamu sudah menaruh `config.yml`. Pastikan lokasinya:
 ```
 C:\Users\<user>\.cloudflared\config.yml
@@ -56,7 +56,7 @@ ingress:
 
 ---
 
-## Langkah 5 — Update `.env`
+## Langkah 5 - Update `.env`
 Isi bagian ini agar sesuai domain publik:
 ```
 APP_URL=https://pos.livedemo.web.id
@@ -69,20 +69,20 @@ REVERB_SERVER_PORT=8081
 
 ---
 
-## Langkah 6 — Jalankan semuanya
+## Langkah 6 - Jalankan semuanya
 Jalankan 3 terminal:
 
-1. **Laravel**
+1. Laravel
 ```bash
 php artisan serve --port=8000
 ```
 
-2. **Reverb**
+2. Reverb
 ```bash
 php artisan reverb:start
 ```
 
-3. **Tunnel**
+3. Tunnel
 ```bash
 cloudflared tunnel run pos-system
 ```
@@ -95,11 +95,11 @@ cloudflared tunnel run pos-system
 https://pos.livedemo.web.id/admin
 ```
 2. Buat order baru.
-3. Di Kitchen Display, order harus muncul otomatis tanpa refresh.
+3. Pastikan tidak ada error realtime di browser console dan transaksi tetap berjalan normal.
 
 ---
 
 ## Catatan penting
-- Jika hanya **1 laptop aktif**, boleh pakai subdomain yang sama.
-- Jika **lebih dari 1 laptop aktif**, buat tunnel + subdomain baru.
+- Jika hanya 1 laptop aktif, boleh pakai subdomain yang sama.
+- Jika lebih dari 1 laptop aktif, buat tunnel + subdomain baru.
 - Jika realtime mati, cek Reverb + tunnel masih jalan.

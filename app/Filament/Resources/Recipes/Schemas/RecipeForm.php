@@ -44,7 +44,8 @@ class RecipeForm
                             ->numeric()
                             ->minValue(0)
                             ->placeholder('Contoh: 15')
-                            ->helperText('Isi estimasi waktu proses dalam menit.'),
+                            ->helperText('Isi estimasi waktu proses dalam menit.')
+                            ->columnSpanFull(),
                     ]),
                 Section::make('Bahan Resep')
                     ->description('Tambahkan bahan dan takaran sekaligus saat membuat resep baru.')

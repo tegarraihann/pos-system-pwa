@@ -9,9 +9,6 @@ with a dedicated POS UI later.
 
 ### Order Status
 - `draft`
-- `queued`
-- `preparing`
-- `ready`
 - `served`
 - `canceled`
 

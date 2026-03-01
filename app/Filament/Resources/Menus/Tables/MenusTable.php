@@ -41,6 +41,7 @@ class MenusTable
                     ->label('Aktif')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -49,12 +50,15 @@ class MenusTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->label('Detail'),
+                EditAction::make()
+                    ->label('Ubah'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->label('Hapus terpilih'),
                 ]),
             ]);
     }

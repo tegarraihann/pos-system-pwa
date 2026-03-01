@@ -15,27 +15,31 @@ class SupplierForm
                 Section::make('Informasi Supplier')
                     ->description('Lengkapi data utama supplier dan kontak PIC.')
                     ->columnSpanFull()
-                    ->columns(2)
+                    ->columns(1)
                     ->schema([
                         TextInput::make('name')
                             ->label('Nama Supplier')
                             ->required()
                             ->maxLength(255)
-                            ->placeholder('Contoh: PT Sumber Pangan'),
+                            ->placeholder('Contoh: PT Sumber Pangan')
+                            ->columnSpanFull(),
                         TextInput::make('pic_name')
                             ->label('PIC Supplier')
                             ->maxLength(255)
-                            ->placeholder('Contoh: Budi Santoso'),
+                            ->placeholder('Contoh: Budi Santoso')
+                            ->columnSpanFull(),
                         TextInput::make('email')
                             ->label('Email')
                             ->email()
                             ->maxLength(255)
-                            ->placeholder('contoh@domain.com'),
+                            ->placeholder('contoh@domain.com')
+                            ->columnSpanFull(),
                         TextInput::make('phone')
                             ->label('No. Telp')
                             ->tel()
                             ->maxLength(50)
-                            ->placeholder('Contoh: 081234567890'),
+                            ->placeholder('Contoh: 081234567890')
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

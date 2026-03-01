@@ -5,12 +5,49 @@ namespace App\Filament\Resources\StockMovements\Pages;
 use App\Filament\Resources\StockMovements\StockMovementResource;
 use App\Models\StockLocation;
 use App\Models\StockMovement;
+use Filament\Actions\Action;
 use Filament\Resources\Pages\CreateRecord;
+use Filament\Support\Enums\Width;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Validation\ValidationException;
 
 class CreateStockMovement extends CreateRecord
 {
     protected static string $resource = StockMovementResource::class;
+    protected Width | string | null $maxContentWidth = Width::FiveExtraLarge;
+
+    public function getTitle(): string | Htmlable
+    {
+        return 'Tambah Pergerakan Stok';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Tambah';
+    }
+
+    protected function getCreateFormAction(): Action
+    {
+        return parent::getCreateFormAction()
+            ->label('Simpan');
+    }
+
+    protected function getCreateAnotherFormAction(): Action
+    {
+        return parent::getCreateAnotherFormAction()
+            ->label('Simpan & tambah lagi');
+    }
+
+    protected function getCancelFormAction(): Action
+    {
+        return parent::getCancelFormAction()
+            ->label('Batal');
+    }
+
+    protected function getCreatedNotificationTitle(): ?string
+    {
+        return 'Pergerakan stok berhasil ditambahkan';
+    }
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {

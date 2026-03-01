@@ -14,6 +14,17 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         $guard = config('auth.defaults.guard', 'web');
 
+        // Cleanup legacy KDS role/permission if they still exist.
+        Permission::query()
+            ->where('guard_name', $guard)
+            ->where('name', 'View:KitchenDisplay')
+            ->delete();
+
+        Role::query()
+            ->where('guard_name', $guard)
+            ->where('name', 'kitchen')
+            ->delete();
+
         $adminRole = Role::firstOrCreate([
             'name' => 'admin',
             'guard_name' => $guard,
@@ -29,14 +40,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'guard_name' => $guard,
         ]);
 
-        $kitchenRole = Role::firstOrCreate([
-            'name' => 'kitchen',
-            'guard_name' => $guard,
-        ]);
-
         collect([
             'View:PosCashier',
-            'View:KitchenDisplay',
             'CheckIn:Attendance',
             'CheckOut:Attendance',
             'Create:Attendance',
@@ -75,16 +80,6 @@ class RolesAndPermissionsSeeder extends Seeder
 
         if ($kasirPermissions->isNotEmpty()) {
             $kasirRole->syncPermissions($kasirPermissions);
-        }
-
-        $kitchenPermissions = collect([
-            'View:KitchenDisplay',
-        ])->map(fn (string $name) => $permissionByName->get($name))
-            ->filter()
-            ->values();
-
-        if ($kitchenPermissions->isNotEmpty()) {
-            $kitchenRole->syncPermissions($kitchenPermissions);
         }
 
         $adminUser = User::firstOrCreate(

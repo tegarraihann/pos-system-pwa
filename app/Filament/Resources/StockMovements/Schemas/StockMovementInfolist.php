@@ -23,9 +23,9 @@ class StockMovementInfolist
                         TextEntry::make('type')
                             ->label('Jenis')
                             ->formatStateUsing(static fn (string $state): string => match ($state) {
-                                StockMovement::TYPE_IN => 'Stock In',
-                                StockMovement::TYPE_OUT => 'Stock Out',
-                                StockMovement::TYPE_ADJUSTMENT => 'Adjustment',
+                                StockMovement::TYPE_IN => 'Stok Masuk',
+                                StockMovement::TYPE_OUT => 'Stok Keluar',
+                                StockMovement::TYPE_ADJUSTMENT => 'Penyesuaian',
                                 StockMovement::TYPE_TRANSFER => 'Transfer',
                                 default => $state,
                             }),
@@ -45,7 +45,7 @@ class StockMovementInfolist
                             ->visible(static fn (): bool => StockLocation::isMultiLocationEnabled())
                             ->placeholder('-'),
                         TextEntry::make('adjustment_type')
-                            ->label('Tipe Adjustment')
+                            ->label('Tipe Penyesuaian')
                             ->formatStateUsing(static fn (?string $state): string => match ($state) {
                                 StockMovement::ADJUSTMENT_INCREASE => 'Penambahan',
                                 StockMovement::ADJUSTMENT_DECREASE => 'Pengurangan',
@@ -56,10 +56,10 @@ class StockMovementInfolist
                             ->placeholder('-'),
                         TextEntry::make('notes')
                             ->label('Catatan')
-                            ->placeholder('-')
-                            ->columnSpanFull(),
+                            ->placeholder('-'),
                     ]),
                 Section::make('Item')
+                    ->columnSpanFull()
                     ->schema([
                         RepeatableEntry::make('items')
                             ->table([

@@ -16,6 +16,7 @@ class StockMovementsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Cari pergerakan stok...')
             ->columns([
                 TextColumn::make('movement_date')
                     ->label('Tanggal')
@@ -25,9 +26,9 @@ class StockMovementsTable
                     ->label('Jenis')
                     ->badge()
                     ->formatStateUsing(static fn (string $state): string => match ($state) {
-                        StockMovement::TYPE_IN => 'Stock In',
-                        StockMovement::TYPE_OUT => 'Stock Out',
-                        StockMovement::TYPE_ADJUSTMENT => 'Adjustment',
+                        StockMovement::TYPE_IN => 'Stok Masuk',
+                        StockMovement::TYPE_OUT => 'Stok Keluar',
+                        StockMovement::TYPE_ADJUSTMENT => 'Penyesuaian',
                         StockMovement::TYPE_TRANSFER => 'Transfer',
                         default => $state,
                     })
@@ -47,6 +48,7 @@ class StockMovementsTable
                     ->label('Referensi')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
+                    ->label('Dibuat pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -55,12 +57,15 @@ class StockMovementsTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->label('Detail'),
+                EditAction::make()
+                    ->label('Ubah'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->label('Hapus terpilih'),
                 ]),
             ]);
     }

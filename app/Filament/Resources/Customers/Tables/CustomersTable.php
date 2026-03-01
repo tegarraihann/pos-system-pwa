@@ -30,6 +30,16 @@ class CustomersTable
                 IconColumn::make('is_member')
                     ->label('Member')
                     ->boolean(),
+                TextColumn::make('member_discount_percent')
+                    ->label('Diskon Member')
+                    ->formatStateUsing(function (mixed $state, $record): string {
+                        if (! $record->is_member) {
+                            return '-';
+                        }
+
+                        return rtrim(rtrim(number_format((float) $state, 2, ',', '.'), '0'), ',') . '%';
+                    })
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

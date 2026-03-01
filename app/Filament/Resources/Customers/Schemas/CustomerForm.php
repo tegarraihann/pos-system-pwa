@@ -6,6 +6,8 @@ use App\Models\Customer;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class CustomerForm
@@ -30,12 +32,6 @@ class CustomerForm
                             ->required()
                             ->maxLength(255)
                             ->placeholder('Contoh: Budi Santoso'),
-                    ]),
-                Section::make('Kontak & Status')
-                    ->description('Kontak customer dan status member.')
-                    ->columnSpanFull()
-                    ->columns(2)
-                    ->schema([
                         TextInput::make('phone')
                             ->label('No. Telepon')
                             ->tel()
@@ -49,8 +45,26 @@ class CustomerForm
                         Toggle::make('is_member')
                             ->label('Member')
                             ->default(false)
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, bool $state): void {
+                                if (! $state) {
+                                    $set('member_discount_percent', 0);
+                                }
+                            })
                             ->inline(false)
-                            ->columnSpan(1),
+                            ->columnSpanFull(),
+                        TextInput::make('member_discount_percent')
+                            ->label('Diskon Member (%)')
+                            ->numeric()
+                            ->default(0)
+                            ->minValue(0)
+                            ->maxValue(100)
+                            ->step('0.01')
+                            ->suffix('%')
+                            ->placeholder('Contoh: 5')
+                            ->helperText('Diskon otomatis ini akan dipakai saat customer dipilih di POS Kasir.')
+                            ->visible(fn (Get $get): bool => (bool) $get('is_member'))
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

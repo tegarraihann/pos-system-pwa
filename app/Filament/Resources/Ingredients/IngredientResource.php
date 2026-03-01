@@ -23,8 +23,20 @@ class IngredientResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBeaker;
     protected static string|UnitEnum|null $navigationGroup = 'Recipe management';
+    protected static ?string $navigationLabel = 'Bahan Baku';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getModelLabel(): string
+    {
+        return 'Bahan Baku';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Bahan Baku';
+    }
 
     public static function form(Schema $schema): Schema
     {

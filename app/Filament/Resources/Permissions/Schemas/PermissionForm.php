@@ -13,13 +13,18 @@ class PermissionForm
     {
         return $schema
             ->components([
-                Section::make('Permission')
+                Section::make('Izin Akses')
+                    ->columnSpanFull()
+                    ->columns(1)
                     ->schema([
                         Hidden::make('guard_name')
                             ->default(config('auth.defaults.guard', 'web')),
                         TextInput::make('name')
+                            ->label('Nama Izin')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->placeholder('Contoh: View:Order')
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

@@ -30,9 +30,9 @@ class StockMovementForm
                             ->label('Jenis Pergerakan')
                             ->options(static function (Get $get): array {
                                 $options = [
-                                    StockMovement::TYPE_IN => 'Stock In',
-                                    StockMovement::TYPE_OUT => 'Stock Out',
-                                    StockMovement::TYPE_ADJUSTMENT => 'Adjustment',
+                                    StockMovement::TYPE_IN => 'Stok Masuk',
+                                    StockMovement::TYPE_OUT => 'Stok Keluar',
+                                    StockMovement::TYPE_ADJUSTMENT => 'Penyesuaian',
                                 ];
 
                                 if (StockLocation::isMultiLocationEnabled() || $get('type') === StockMovement::TYPE_TRANSFER) {
@@ -107,7 +107,7 @@ class StockMovementForm
                             ->different('from_location_id')
                             ->columnSpanFull(),
                         Select::make('adjustment_type')
-                            ->label('Tipe Adjustment')
+                            ->label('Tipe Penyesuaian')
                             ->options([
                                 StockMovement::ADJUSTMENT_INCREASE => 'Penambahan',
                                 StockMovement::ADJUSTMENT_DECREASE => 'Pengurangan',

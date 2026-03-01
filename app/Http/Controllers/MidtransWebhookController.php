@@ -106,7 +106,7 @@ class MidtransWebhookController extends Controller
         ];
 
         if ($paymentStatus === 'paid' && $order->status === Order::STATUS_DRAFT) {
-            $orderUpdate['status'] = Order::STATUS_QUEUED;
+            $orderUpdate['status'] = Order::STATUS_SERVED;
         }
 
         $order->update($orderUpdate);

@@ -25,8 +25,20 @@ class RecipeResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentList;
     protected static string|UnitEnum|null $navigationGroup = 'Recipe management';
+    protected static ?string $navigationLabel = 'Resep';
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'id';
+
+    public static function getModelLabel(): string
+    {
+        return 'Resep';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Resep';
+    }
 
     public static function getRecordTitle(?Model $record): string | null
     {

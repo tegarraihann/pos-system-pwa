@@ -15,6 +15,7 @@ class MenuVariantsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Cari varian menu...')
             ->columns([
                 TextColumn::make('menu.name')
                     ->label('Menu')
@@ -25,16 +26,16 @@ class MenuVariantsTable
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('size_varian')
-                    ->label('Size')
+                    ->label('Ukuran')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('temperature')
-                    ->label('Temperature')
+                    ->label('Suhu')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('sugar_level')
-                    ->label('Sugar Level')
+                    ->label('Level Gula')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ice_level')
-                    ->label('Ice Level')
+                    ->label('Level Es')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('price')
                     ->label('Harga')
@@ -44,7 +45,7 @@ class MenuVariantsTable
                     ->label('Stok')
                     ->sortable(),
                 TextColumn::make('reminder_stock')
-                    ->label('Reminder')
+                    ->label('Pengingat')
                     ->numeric(decimalPlaces: 3)
                     ->placeholder('-')
                     ->sortable(),
@@ -52,6 +53,7 @@ class MenuVariantsTable
                     ->label('Aktif')
                     ->boolean(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -60,12 +62,15 @@ class MenuVariantsTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->label('Detail'),
+                EditAction::make()
+                    ->label('Ubah'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->label('Hapus terpilih'),
                 ]),
             ]);
     }

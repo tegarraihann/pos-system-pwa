@@ -23,8 +23,20 @@ class IngredientCategoryResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
     protected static string|UnitEnum|null $navigationGroup = 'Recipe management';
+    protected static ?string $navigationLabel = 'Kategori Bahan';
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getModelLabel(): string
+    {
+        return 'Kategori Bahan';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Kategori Bahan';
+    }
 
     public static function form(Schema $schema): Schema
     {

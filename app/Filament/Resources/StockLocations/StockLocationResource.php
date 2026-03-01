@@ -23,6 +23,7 @@ class StockLocationResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMapPin;
     protected static string|UnitEnum|null $navigationGroup = 'Inventory management';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
 

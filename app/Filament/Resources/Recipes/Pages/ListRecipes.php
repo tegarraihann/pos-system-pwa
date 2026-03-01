@@ -5,15 +5,27 @@ namespace App\Filament\Resources\Recipes\Pages;
 use App\Filament\Resources\Recipes\RecipeResource;
 use Filament\Actions\CreateAction;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ListRecipes extends ListRecords
 {
     protected static string $resource = RecipeResource::class;
 
+    public function getTitle(): string | Htmlable
+    {
+        return 'Resep';
+    }
+
+    public function getBreadcrumb(): ?string
+    {
+        return 'Resep';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Tambah Resep'),
         ];
     }
 }

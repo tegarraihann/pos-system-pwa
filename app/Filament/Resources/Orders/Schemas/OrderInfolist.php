@@ -33,13 +33,9 @@ class OrderInfolist
                         TextEntry::make('status')
                             ->label('Status')
                             ->formatStateUsing(static fn (string $state): string => match ($state) {
-                                Order::STATUS_DRAFT => 'Draft',
-                                Order::STATUS_RECEIVED => 'Received',
-                                Order::STATUS_QUEUED => 'Queued',
-                                Order::STATUS_PREPARING => 'Preparing',
-                                Order::STATUS_READY => 'Ready',
-                                Order::STATUS_SERVED => 'Served',
-                                Order::STATUS_CANCELED => 'Canceled',
+                                Order::STATUS_DRAFT => 'Draf',
+                                Order::STATUS_SERVED => 'Selesai',
+                                Order::STATUS_CANCELED => 'Dibatalkan',
                                 default => $state,
                             }),
                         TextEntry::make('customer_type')
@@ -61,6 +57,12 @@ class OrderInfolist
                             ->money('IDR', locale: 'id'),
                         TextEntry::make('discount_total')
                             ->label('Total Diskon')
+                            ->money('IDR', locale: 'id'),
+                        TextEntry::make('member_discount_percent')
+                            ->label('Diskon Member (%)')
+                            ->formatStateUsing(static fn (mixed $state): string => number_format((float) $state, 2, ',', '.') . '%'),
+                        TextEntry::make('member_discount_total')
+                            ->label('Diskon Member')
                             ->money('IDR', locale: 'id'),
                         TextEntry::make('tax_total')
                             ->label('Pajak')

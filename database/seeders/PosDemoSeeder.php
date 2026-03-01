@@ -366,7 +366,7 @@ class PosDemoSeeder extends Seeder
         $orderOne = Order::query()->create([
             'order_number' => Order::generateOrderNumber(),
             'order_type' => Order::TYPE_DINE_IN,
-            'status' => Order::STATUS_QUEUED,
+            'status' => Order::STATUS_SERVED,
             'customer_type' => Order::CUSTOMER_WALK_IN,
             'stock_location_id' => $locations->get('OUTLET-A'),
             'table_number' => 'A1',

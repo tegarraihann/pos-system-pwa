@@ -2,8 +2,6 @@
 
 namespace App\Models;
 
-use App\Events\OrderCreated;
-use App\Events\OrderUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -12,10 +10,6 @@ class Order extends Model
     use HasFactory;
 
     public const STATUS_DRAFT = 'draft';
-    public const STATUS_RECEIVED = 'received';
-    public const STATUS_QUEUED = 'queued';
-    public const STATUS_PREPARING = 'preparing';
-    public const STATUS_READY = 'ready';
     public const STATUS_SERVED = 'served';
     public const STATUS_CANCELED = 'canceled';
 
@@ -51,13 +45,12 @@ class Order extends Model
         'notes',
         'subtotal',
         'discount_total',
+        'member_discount_percent',
+        'member_discount_total',
         'tax_total',
         'service_total',
         'grand_total',
         'paid_total',
-        'received_at',
-        'ready_at',
-        'is_priority',
         'cancel_reason',
         'canceled_at',
         'created_by',
@@ -68,14 +61,13 @@ class Order extends Model
         'canceled_at' => 'datetime',
         'subtotal' => 'decimal:2',
         'discount_total' => 'decimal:2',
+        'member_discount_percent' => 'decimal:2',
+        'member_discount_total' => 'decimal:2',
         'tax_total' => 'decimal:2',
         'service_total' => 'decimal:2',
         'grand_total' => 'decimal:2',
         'paid_total' => 'decimal:2',
         'synced_at' => 'datetime',
-        'received_at' => 'datetime',
-        'ready_at' => 'datetime',
-        'is_priority' => 'boolean',
     ];
 
     protected static function booted(): void
@@ -90,29 +82,10 @@ class Order extends Model
             }
         });
 
-        static::created(function (self $order): void {
-            self::dispatchRealtimeEventSafely(new OrderCreated($order));
-        });
-
-        static::updated(function (self $order): void {
-            if ($order->wasChanged(['status', 'is_priority', 'received_at', 'ready_at'])) {
-                self::dispatchRealtimeEventSafely(new OrderUpdated($order));
-            }
-        });
-
         static::saved(function (self $order): void {
             $order->recalculateTotals();
             $order->refreshPaidTotal();
         });
-    }
-
-    protected static function dispatchRealtimeEventSafely(object $event): void
-    {
-        try {
-            event($event);
-        } catch (\Throwable $exception) {
-            report($exception);
-        }
     }
 
     public static function generateOrderNumber(): string
@@ -164,10 +137,12 @@ class Order extends Model
     {
         $items = $this->items()->get();
 
-        $discountTotal = $items->sum('discount_amount');
+        $itemDiscountTotal = $items->sum('discount_amount');
         $lineTotal = $items->sum('total');
-        $subtotal = $lineTotal + $discountTotal;
-        $grandTotal = $lineTotal + (float) $this->tax_total + (float) $this->service_total;
+        $subtotal = $lineTotal + $itemDiscountTotal;
+        $memberDiscountTotal = (float) $this->member_discount_total;
+        $discountTotal = $itemDiscountTotal + $memberDiscountTotal;
+        $grandTotal = $subtotal - $discountTotal + (float) $this->tax_total + (float) $this->service_total;
 
         $this->updateQuietly([
             'subtotal' => $subtotal,

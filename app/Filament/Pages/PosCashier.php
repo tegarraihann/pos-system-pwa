@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Attendance;
+use App\Models\Customer;
 use App\Models\MenuVariant;
 use App\Models\Order;
 use App\Models\Payment;
@@ -23,6 +24,7 @@ class PosCashier extends Page
     protected static ?string $title = 'POS Kasir';
     protected static ?string $navigationLabel = 'POS Kasir';
     protected static string|UnitEnum|null $navigationGroup = 'POS management';
+    protected static ?int $navigationSort = 1;
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
     protected static ?string $slug = 'pos-cashier';
 
@@ -33,6 +35,7 @@ class PosCashier extends Page
     public bool $showPaymentModal = false;
     public bool $showReceiptModal = false;
     public bool $showPendingModal = false;
+    public ?string $selectedCustomerId = null;
     public string $selectedPaymentMethod = '';
     public ?string $cashPaidAmount = null;
     public bool $isOffline = false;
@@ -256,6 +259,7 @@ class PosCashier extends Page
     public function clearCart(): void
     {
         $this->cart = [];
+        $this->selectedCustomerId = null;
         $this->closePaymentModal();
 
         Notification::make()
@@ -305,7 +309,7 @@ class PosCashier extends Page
     public function updatedSelectedPaymentMethod(string $method): void
     {
         if ($method === Order::PAYMENT_CASH && blank($this->cashPaidAmount)) {
-            $this->cashPaidAmount = (string) round($this->cartSubtotal);
+            $this->cashPaidAmount = (string) round($this->cartGrandTotal);
         }
 
         if ($method === Order::PAYMENT_MIDTRANS) {
@@ -480,10 +484,10 @@ class PosCashier extends Page
 
     protected function processCashPayment(): void
     {
-        $subtotal = (float) $this->cartSubtotal;
+        $grandTotal = (float) $this->cartGrandTotal;
         $paidAmount = $this->resolvedCashPaidAmount();
 
-        if ($paidAmount < $subtotal) {
+        if ($paidAmount < $grandTotal) {
             Notification::make()
                 ->title('Nominal tunai kurang')
                 ->body('Nominal dibayar harus sama atau lebih besar dari total.')
@@ -493,9 +497,9 @@ class PosCashier extends Page
         }
 
         try {
-            [$order, $payment] = DB::transaction(function () use ($subtotal): array {
+            [$order, $payment] = DB::transaction(function () use ($grandTotal): array {
                 $order = $this->createOrderFromCart([
-                    'status' => Order::STATUS_QUEUED,
+                    'status' => Order::STATUS_SERVED,
                     'payment_method' => Order::PAYMENT_CASH,
                     'sync_status' => Order::SYNC_STATUS_SYNCED,
                     'synced_at' => now(),
@@ -503,7 +507,7 @@ class PosCashier extends Page
 
                 $payment = $order->payments()->create([
                     'method' => Order::PAYMENT_CASH,
-                    'amount' => $subtotal,
+                    'amount' => $grandTotal,
                     'status' => 'paid',
                     'paid_at' => now(),
                 ]);
@@ -521,8 +525,9 @@ class PosCashier extends Page
             return;
         }
 
-        $change = max($paidAmount - $subtotal, 0);
+        $change = max($paidAmount - $grandTotal, 0);
         $this->cart = [];
+        $this->selectedCustomerId = null;
         $this->closePaymentModal();
         $this->receiptData = $this->buildReceiptData($order->fresh('items.menuVariant.menu', 'payments', 'creator'), $payment->fresh(), $paidAmount);
         $this->showReceiptModal = true;
@@ -606,6 +611,7 @@ class PosCashier extends Page
             gatewayRef: $this->activeMidtransGatewayRef,
         );
         $this->cart = [];
+        $this->selectedCustomerId = null;
         $this->closePaymentModal();
     }
 
@@ -651,7 +657,7 @@ class PosCashier extends Page
 
             Notification::make()
                 ->title('Pembayaran Midtrans berhasil')
-                ->body('Transaksi sudah settlement dan order masuk antrian kitchen.')
+                ->body('Transaksi sudah settlement dan order dinyatakan selesai.')
                 ->success()
                 ->send();
 
@@ -751,15 +757,81 @@ class PosCashier extends Page
         }, 0.0);
     }
 
+    /**
+     * @return array<string, string>
+     */
+    public function getAvailableCustomersProperty(): array
+    {
+        return Customer::query()
+            ->orderBy('name')
+            ->get()
+            ->mapWithKeys(function (Customer $customer): array {
+                $label = trim(($customer->code !== '' ? $customer->code . ' - ' : '') . $customer->name);
+
+                if ($customer->is_member) {
+                    $percent = rtrim(rtrim(number_format((float) $customer->member_discount_percent, 2, '.', ''), '0'), '.');
+                    $label .= ' (Member ' . $percent . '%)';
+                }
+
+                return [(string) $customer->id => $label];
+            })
+            ->all();
+    }
+
+    public function getSelectedCustomerProperty(): ?Customer
+    {
+        if (blank($this->selectedCustomerId)) {
+            return null;
+        }
+
+        return Customer::query()->find((int) $this->selectedCustomerId);
+    }
+
+    public function getCurrentCustomerTypeProperty(): string
+    {
+        $customer = $this->selectedCustomer;
+
+        if ($customer?->is_member) {
+            return Order::CUSTOMER_MEMBER;
+        }
+
+        return Order::CUSTOMER_WALK_IN;
+    }
+
+    public function getCurrentMemberDiscountPercentProperty(): float
+    {
+        $customer = $this->selectedCustomer;
+
+        if (! $customer?->is_member) {
+            return 0.0;
+        }
+
+        return max((float) $customer->member_discount_percent, 0.0);
+    }
+
+    public function getCurrentMemberDiscountTotalProperty(): float
+    {
+        if ($this->cart === []) {
+            return 0.0;
+        }
+
+        return round($this->cartSubtotal * ($this->currentMemberDiscountPercent / 100), 2);
+    }
+
+    public function getCartGrandTotalProperty(): float
+    {
+        return max($this->cartSubtotal - $this->currentMemberDiscountTotal, 0);
+    }
+
     public function getCashChangeProperty(): float
     {
-        return max($this->resolvedCashPaidAmount() - (float) $this->cartSubtotal, 0);
+        return max($this->resolvedCashPaidAmount() - (float) $this->cartGrandTotal, 0);
     }
 
     public function getCanConfirmPaymentProperty(): bool
     {
         if ($this->selectedPaymentMethod === Order::PAYMENT_CASH) {
-            return $this->resolvedCashPaidAmount() >= (float) $this->cartSubtotal;
+            return $this->resolvedCashPaidAmount() >= (float) $this->cartGrandTotal;
         }
 
         if ($this->selectedPaymentMethod === Order::PAYMENT_MIDTRANS) {
@@ -881,7 +953,7 @@ class PosCashier extends Page
     protected function resolvedCashPaidAmount(): float
     {
         if (blank($this->cashPaidAmount)) {
-            return (float) $this->cartSubtotal;
+            return (float) $this->cartGrandTotal;
         }
 
         return max((float) $this->cashPaidAmount, 0);
@@ -901,9 +973,14 @@ class PosCashier extends Page
             throw new \RuntimeException('Item menu tidak ditemukan.');
         }
 
+        $selectedCustomer = $this->selectedCustomer;
+
         $order = Order::create(array_merge([
             'order_type' => Order::TYPE_DINE_IN,
-            'customer_type' => Order::CUSTOMER_WALK_IN,
+            'customer_type' => $this->currentCustomerType,
+            'customer_id' => $selectedCustomer?->id,
+            'member_discount_percent' => $this->currentMemberDiscountPercent,
+            'member_discount_total' => $this->currentMemberDiscountTotal,
             'stock_location_id' => StockLocation::query()->value('id'),
             'created_by' => auth()->id(),
         ], $orderAttributes));
@@ -1093,7 +1170,7 @@ class PosCashier extends Page
             ];
 
             if ($paymentStatus === 'paid' && $order->status === Order::STATUS_DRAFT) {
-                $orderUpdate['status'] = Order::STATUS_QUEUED;
+                $orderUpdate['status'] = Order::STATUS_SERVED;
             }
 
             $order->update($orderUpdate);
@@ -1133,9 +1210,13 @@ class PosCashier extends Page
             'order_number' => $order->order_number,
             'ordered_at' => optional($order->ordered_at)->format('d/m/Y H:i:s'),
             'cashier_name' => $order->creator?->name ?? '-',
+            'customer_name' => $order->customer?->name ?? 'Walk In',
+            'customer_type' => $order->customer_type,
             'payment_method' => $payment->method,
             'payment_status' => $payment->status,
             'subtotal' => (float) $order->subtotal,
+            'member_discount_percent' => (float) $order->member_discount_percent,
+            'member_discount_total' => (float) $order->member_discount_total,
             'discount_total' => (float) $order->discount_total,
             'tax_total' => (float) $order->tax_total,
             'service_total' => (float) $order->service_total,

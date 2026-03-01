@@ -22,9 +22,21 @@ class MenuVariantResource extends BaseResource
     protected static ?string $model = MenuVariant::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCubeTransparent;
-    protected static string|UnitEnum|null $navigationGroup = 'Product management';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Produk';
+    protected static ?string $navigationLabel = 'Varian Menu';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'kd_varian';
+
+    public static function getModelLabel(): string
+    {
+        return 'Varian Menu';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Varian Menu';
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -58,5 +70,3 @@ class MenuVariantResource extends BaseResource
         ];
     }
 }
-
-

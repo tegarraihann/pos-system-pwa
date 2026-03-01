@@ -23,6 +23,7 @@ class CustomerResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
     protected static string|UnitEnum|null $navigationGroup = 'POS management';
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $recordTitleAttribute = 'name';
 

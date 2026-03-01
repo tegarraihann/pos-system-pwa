@@ -23,9 +23,21 @@ class MenuResource extends BaseResource
     protected static ?string $model = Menu::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCube;
-    protected static string|UnitEnum|null $navigationGroup = 'Product management';
+    protected static string|UnitEnum|null $navigationGroup = 'Manajemen Produk';
+    protected static ?string $navigationLabel = 'Menu';
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getModelLabel(): string
+    {
+        return 'Menu';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Menu';
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -15,16 +15,22 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Support\Enums\Width;
 
 class MenuVariantsRelationManager extends RelationManager
 {
     protected static string $relationship = 'variants';
+    protected static ?string $title = 'Varian Menu';
+    protected static ?string $modelLabel = 'Varian Menu';
+    protected static ?string $pluralModelLabel = 'Varian Menu';
 
     public function form(Schema $schema): Schema
     {
         return $schema
+            ->columns(1)
             ->components([
-                Section::make('Varian')
+                Section::make('Data Varian')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         TextInput::make('kd_varian')
@@ -33,16 +39,16 @@ class MenuVariantsRelationManager extends RelationManager
                             ->maxLength(50)
                             ->unique(MenuVariant::class, 'kd_varian', ignoreRecord: true),
                         TextInput::make('size_varian')
-                            ->label('Size Varian')
+                            ->label('Ukuran Varian')
                             ->maxLength(50),
                         TextInput::make('temperature')
-                            ->label('Temperature')
+                            ->label('Suhu')
                             ->maxLength(50),
                         TextInput::make('sugar_level')
-                            ->label('Sugar Level')
+                            ->label('Level Gula')
                             ->maxLength(50),
                         TextInput::make('ice_level')
-                            ->label('Ice Level')
+                            ->label('Level Es')
                             ->maxLength(50),
                         TextInput::make('price')
                             ->label('Harga')
@@ -64,22 +70,23 @@ class MenuVariantsRelationManager extends RelationManager
     public function table(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Cari varian...')
             ->columns([
                 TextColumn::make('kd_varian')
                     ->label('Kode')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('size_varian')
-                    ->label('Size')
+                    ->label('Ukuran')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('temperature')
-                    ->label('Temperature')
+                    ->label('Suhu')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('sugar_level')
-                    ->label('Sugar Level')
+                    ->label('Level Gula')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('ice_level')
-                    ->label('Ice Level')
+                    ->label('Level Es')
                     ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('price')
                     ->label('Harga')
@@ -93,14 +100,24 @@ class MenuVariantsRelationManager extends RelationManager
                     ->boolean(),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->label('Tambah Varian Menu')
+                    ->modalWidth(Width::FourExtraLarge)
+                    ->modalSubmitActionLabel('Simpan')
+                    ->modalCancelActionLabel('Batal'),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->label('Ubah')
+                    ->modalWidth(Width::FourExtraLarge)
+                    ->modalSubmitActionLabel('Simpan perubahan')
+                    ->modalCancelActionLabel('Batal'),
+                DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->label('Hapus terpilih'),
             ]);
     }
 }

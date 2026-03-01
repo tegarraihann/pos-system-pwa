@@ -5,12 +5,55 @@ namespace App\Filament\Resources\StockMovements\Pages;
 use App\Filament\Resources\StockMovements\StockMovementResource;
 use App\Models\StockLocation;
 use App\Models\StockMovement;
+use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Support\Enums\Width;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Validation\ValidationException;
 
 class EditStockMovement extends EditRecord
 {
     protected static string $resource = StockMovementResource::class;
+    protected Width | string | null $maxContentWidth = Width::FiveExtraLarge;
+
+    public function getTitle(): string | Htmlable
+    {
+        return 'Ubah Pergerakan Stok';
+    }
+
+    public function getBreadcrumb(): string
+    {
+        return 'Ubah';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            ViewAction::make()
+                ->label('Lihat'),
+            DeleteAction::make()
+                ->label('Hapus'),
+        ];
+    }
+
+    protected function getSaveFormAction(): Action
+    {
+        return parent::getSaveFormAction()
+            ->label('Simpan perubahan');
+    }
+
+    protected function getCancelFormAction(): Action
+    {
+        return parent::getCancelFormAction()
+            ->label('Batal');
+    }
+
+    protected function getSavedNotificationTitle(): ?string
+    {
+        return 'Pergerakan stok berhasil diperbarui';
+    }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {

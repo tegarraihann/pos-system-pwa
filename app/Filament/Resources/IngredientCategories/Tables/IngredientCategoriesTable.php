@@ -14,12 +14,14 @@ class IngredientCategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->searchPlaceholder('Cari kategori...')
             ->columns([
                 TextColumn::make('name')
                     ->label('Nama Kategori')
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('created_at')
+                    ->label('Dibuat pada')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -28,12 +30,15 @@ class IngredientCategoriesTable
                 //
             ])
             ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
+                ViewAction::make()
+                    ->label('Detail'),
+                EditAction::make()
+                    ->label('Ubah'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make()
+                        ->label('Hapus terpilih'),
                 ]),
             ]);
     }

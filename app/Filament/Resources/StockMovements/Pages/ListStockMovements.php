@@ -9,10 +9,21 @@ use Filament\Actions\Action;
 use Filament\Actions\CreateAction;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ListRecords;
+use Illuminate\Contracts\Support\Htmlable;
 
 class ListStockMovements extends ListRecords
 {
     protected static string $resource = StockMovementResource::class;
+
+    public function getTitle(): string | Htmlable
+    {
+        return 'Manajemen Stok';
+    }
+
+    public function getBreadcrumb(): ?string
+    {
+        return 'Manajemen Stok';
+    }
 
     public function mount(): void
     {
@@ -39,7 +50,8 @@ class ListStockMovements extends ListRecords
                 ->color($badgeColor)
                 ->icon('heroicon-o-bell-alert')
                 ->disabled(),
-            CreateAction::make(),
+            CreateAction::make()
+                ->label('Tambah Pergerakan Stok'),
         ];
     }
 

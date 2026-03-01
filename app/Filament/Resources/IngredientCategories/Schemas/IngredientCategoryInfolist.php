@@ -19,9 +19,11 @@ class IngredientCategoryInfolist
                         TextEntry::make('name')
                             ->label('Nama Kategori'),
                         TextEntry::make('created_at')
+                            ->label('Dibuat pada')
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('updated_at')
+                            ->label('Diperbarui pada')
                             ->dateTime()
                             ->placeholder('-'),
                     ]),

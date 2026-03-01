@@ -20,7 +20,7 @@ class OrderForm
         return $schema
             ->components([
                 Section::make('Informasi Order')
-                    ->description('Data utama order yang akan diproses oleh kasir dan kitchen.')
+                    ->description('Data utama order yang diproses oleh kasir.')
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -44,13 +44,9 @@ class OrderForm
                         Select::make('status')
                             ->label('Status')
                             ->options([
-                                Order::STATUS_DRAFT => 'Draft',
-                                Order::STATUS_RECEIVED => 'Received',
-                                Order::STATUS_QUEUED => 'Queued',
-                                Order::STATUS_PREPARING => 'Preparing',
-                                Order::STATUS_READY => 'Ready',
-                                Order::STATUS_SERVED => 'Served',
-                                Order::STATUS_CANCELED => 'Canceled',
+                                Order::STATUS_DRAFT => 'Draf',
+                                Order::STATUS_SERVED => 'Selesai',
+                                Order::STATUS_CANCELED => 'Dibatalkan',
                             ])
                             ->required(),
                         Select::make('stock_location_id')

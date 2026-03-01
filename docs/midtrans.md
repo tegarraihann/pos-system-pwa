@@ -65,7 +65,7 @@ Webhook Midtrans mengubah status `payments.status`:
 - `expire` -> `expired`
 - `cancel` -> `canceled`
 
-Jika status `paid`, maka `orders.status` otomatis menjadi `queued`.
+Jika status `paid`, maka `orders.status` otomatis menjadi `served` (selesai).
 
 ## Setup di Dashboard Midtrans
 

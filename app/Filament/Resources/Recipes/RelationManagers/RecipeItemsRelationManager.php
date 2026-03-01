@@ -7,10 +7,10 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
@@ -25,6 +25,7 @@ class RecipeItemsRelationManager extends RelationManager
         return $schema
             ->components([
                 Section::make('Item Resep')
+                    ->columnSpanFull()
                     ->columns(2)
                     ->schema([
                         Select::make('ingredient_id')
@@ -59,14 +60,27 @@ class RecipeItemsRelationManager extends RelationManager
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->headerActions([
-                CreateAction::make(),
+                CreateAction::make()
+                    ->label('Tambah Bahan')
+                    ->modalHeading('Tambah Bahan Resep')
+                    ->modalSubmitActionLabel('Simpan')
+                    ->modalCancelActionLabel('Batal')
+                    ->createAnother(false)
+                    ->modalWidth('2xl'),
             ])
             ->actions([
-                EditAction::make(),
-                DeleteAction::make(),
+                EditAction::make()
+                    ->label('Ubah')
+                    ->modalHeading('Ubah Bahan Resep')
+                    ->modalSubmitActionLabel('Simpan perubahan')
+                    ->modalCancelActionLabel('Batal')
+                    ->modalWidth('2xl'),
+                DeleteAction::make()
+                    ->label('Hapus'),
             ])
             ->bulkActions([
-                DeleteBulkAction::make(),
+                DeleteBulkAction::make()
+                    ->label('Hapus terpilih'),
             ]);
     }
 }

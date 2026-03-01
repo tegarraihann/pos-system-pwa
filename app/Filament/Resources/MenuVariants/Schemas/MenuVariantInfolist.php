@@ -33,16 +33,16 @@ class MenuVariantInfolist
                     ->columns(2)
                     ->schema([
                         TextEntry::make('size_varian')
-                            ->label('Size Varian')
+                            ->label('Ukuran Varian')
                             ->placeholder('-'),
                         TextEntry::make('temperature')
-                            ->label('Temperature')
+                            ->label('Suhu')
                             ->placeholder('-'),
                         TextEntry::make('sugar_level')
-                            ->label('Sugar Level')
+                            ->label('Level Gula')
                             ->placeholder('-'),
                         TextEntry::make('ice_level')
-                            ->label('Ice Level')
+                            ->label('Level Es')
                             ->placeholder('-'),
                     ]),
 

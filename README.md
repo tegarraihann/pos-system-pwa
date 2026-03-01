@@ -1,11 +1,10 @@
 # POS System PWA
 
 Aplikasi POS berbasis Laravel 12 + Filament 4.
-Fitur utama: POS kasir, KDS, manajemen stok, role/permission, realtime (Reverb), PWA, dan Midtrans (opsional).
+Fitur utama: POS kasir, manajemen stok, role/permission, realtime (Reverb), PWA, dan Midtrans (opsional).
 
 ## Fitur Utama
 - POS Kasir
-- Kitchen Display
 - Manajemen menu, varian, resep, bahan baku
 - Manajemen user, role, permission (Spatie + Shield)
 - Absensi kasir
@@ -131,7 +130,7 @@ php artisan make:filament-user
 
 Setelah user dibuat, masuk sebagai super admin lalu:
 - Buka menu `Users`
-- Set role user (misalnya `kasir`, `kitchen`, `admin`)
+- Set role user (misalnya `kasir` atau `admin`)
 
 ## Menjalankan Realtime (Opsional)
 ```bash

@@ -23,8 +23,20 @@ class SupplierResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboard;
     protected static string|UnitEnum|null $navigationGroup = 'Recipe management';
+    protected static ?string $navigationLabel = 'Supplier';
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getModelLabel(): string
+    {
+        return 'Supplier';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Supplier';
+    }
 
     public static function form(Schema $schema): Schema
     {

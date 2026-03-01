@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->navigationGroups([
                 'POS management',
-                'Product management',
+                'Manajemen Produk',
                 'Recipe management',
                 'Inventory management',
                 'User management',

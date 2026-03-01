@@ -23,8 +23,20 @@ class PermissionResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedKey;
     protected static string|UnitEnum|null $navigationGroup = 'User management';
+    protected static ?string $navigationLabel = 'Izin Akses';
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getModelLabel(): string
+    {
+        return 'Izin Akses';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Izin Akses';
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -16,8 +16,8 @@ class MenuForm
     {
         return $schema
             ->components([
-                Section::make('Informasi Utama')
-                    ->description('Data utama untuk identitas menu.')
+                Section::make('Informasi Menu')
+                    ->description('Lengkapi data utama, status, stok, foto, dan deskripsi menu.')
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
@@ -40,13 +40,6 @@ class MenuForm
                             ->label('Satuan')
                             ->maxLength(50)
                             ->placeholder('Contoh: Cup / Porsi'),
-                    ]),
-
-                Section::make('Status & Pengaturan Stok')
-                    ->description('Pengaturan status aktif menu dan pemakaian stok.')
-                    ->columnSpanFull()
-                    ->columns(2)
-                    ->schema([
                         Toggle::make('is_active')
                             ->label('Aktif')
                             ->default(true)
@@ -56,13 +49,6 @@ class MenuForm
                             ->default(false)
                             ->helperText('Aktifkan jika menu ini mengikuti pergerakan stok.')
                             ->inline(false),
-                    ]),
-
-                Section::make('Media & Deskripsi')
-                    ->description('Tambahan foto dan keterangan menu.')
-                    ->columnSpanFull()
-                    ->columns(1)
-                    ->schema([
                         FileUpload::make('image_path')
                             ->label('Foto')
                             ->disk('public')

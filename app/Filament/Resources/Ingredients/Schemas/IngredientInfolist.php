@@ -37,9 +37,11 @@ class IngredientInfolist
                             ->label('Aktif')
                             ->formatStateUsing(fn (bool $state): string => $state ? 'Ya' : 'Tidak'),
                         TextEntry::make('created_at')
+                            ->label('Dibuat pada')
                             ->dateTime()
                             ->placeholder('-'),
                         TextEntry::make('updated_at')
+                            ->label('Diperbarui pada')
                             ->dateTime()
                             ->placeholder('-'),
                     ]),

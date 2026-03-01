@@ -25,6 +25,7 @@ class OrderResource extends BaseResource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedReceiptPercent;
     protected static string|UnitEnum|null $navigationGroup = 'POS management';
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $recordTitleAttribute = 'order_number';
 

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Permissions\Schemas;
 
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class PermissionInfolist
@@ -11,15 +12,23 @@ class PermissionInfolist
     {
         return $schema
             ->components([
-                TextEntry::make('name'),
-                TextEntry::make('guard_name')
-                    ->label('Guard'),
-                TextEntry::make('created_at')
-                    ->dateTime()
-                    ->placeholder('-'),
-                TextEntry::make('updated_at')
-                    ->dateTime()
-                    ->placeholder('-'),
+                Section::make('Detail Izin Akses')
+                    ->columnSpanFull()
+                    ->columns(2)
+                    ->schema([
+                        TextEntry::make('name')
+                            ->label('Nama Izin'),
+                        TextEntry::make('guard_name')
+                            ->label('Guard'),
+                        TextEntry::make('created_at')
+                            ->label('Dibuat pada')
+                            ->dateTime()
+                            ->placeholder('-'),
+                        TextEntry::make('updated_at')
+                            ->label('Diperbarui pada')
+                            ->dateTime()
+                            ->placeholder('-'),
+                    ]),
             ]);
     }
 }

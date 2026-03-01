@@ -42,6 +42,8 @@ class OfflineOrderSyncController extends Controller
             'notes' => ['nullable', 'string'],
             'tax_total' => ['nullable', 'numeric', 'min:0'],
             'service_total' => ['nullable', 'numeric', 'min:0'],
+            'member_discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'member_discount_total' => ['nullable', 'numeric', 'min:0'],
             'paid_at' => ['nullable', 'date'],
             'payment_amount' => ['nullable', 'numeric', 'min:0'],
             'items' => ['required', 'array', 'min:1'],
@@ -105,7 +107,9 @@ class OfflineOrderSyncController extends Controller
                     'order_type' => (string) ($payload['order_type'] ?? Order::TYPE_DINE_IN),
                     'status' => Order::STATUS_DRAFT,
                     'customer_type' => $customerType,
-                    'customer_id' => $customerType === Order::CUSTOMER_MEMBER ? ($payload['customer_id'] ?? null) : null,
+                    'customer_id' => $payload['customer_id'] ?? null,
+                    'member_discount_percent' => (float) ($payload['member_discount_percent'] ?? 0),
+                    'member_discount_total' => (float) ($payload['member_discount_total'] ?? 0),
                     'payment_method' => Order::PAYMENT_CASH,
                     'sync_status' => Order::SYNC_STATUS_SYNCED,
                     'client_txn_id' => $clientTxnId,
@@ -144,7 +148,7 @@ class OfflineOrderSyncController extends Controller
 
                 if ($order->status === Order::STATUS_DRAFT) {
                     $order->update([
-                        'status' => Order::STATUS_QUEUED,
+                        'status' => Order::STATUS_SERVED,
                     ]);
                 }
 

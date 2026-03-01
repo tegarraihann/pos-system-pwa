@@ -6,9 +6,7 @@ use App\Http\Controllers\QzTraySigningController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::redirect('/', '/admin/login');
 
 Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle'])
     ->withoutMiddleware([VerifyCsrfToken::class]);

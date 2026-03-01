@@ -753,13 +753,29 @@
 
                 {{-- Summary --}}
                 <div style="padding: 1rem 1.25rem; background: var(--gray-100); border-top: 1px solid var(--gray-200);" class="dark:bg-gray-800/50">
+                    @if ($this->selectedCustomer)
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.5rem;">
+                            <span style="color: var(--gray-500);">Customer</span>
+                            <span style="font-weight: 600; color: var(--gray-700);">
+                                {{ $this->selectedCustomer->name }}
+                                @if ($this->selectedCustomer->is_member)
+                                    (Member {{ rtrim(rtrim(number_format((float) $this->currentMemberDiscountPercent, 2, '.', ''), '0'), '.') }}%)
+                                @endif
+                            </span>
+                        </div>
+                    @endif
                     <div style="display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 0.5rem;">
                         <span style="color: var(--gray-600);">Subtotal</span>
                         <span style="font-weight: 600; color: var(--gray-900);" class="dark:text-white">Rp {{ number_format((float) $this->cartSubtotal, 0, ',', '.') }}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 0.25rem;">
-                        <span style="color: var(--gray-500);">Diskon</span>
-                        <span style="color: var(--gray-500);">Rp 0</span>
+                        <span style="color: var(--gray-500);">
+                            Diskon Member
+                            @if ((float) $this->currentMemberDiscountPercent > 0)
+                                ({{ rtrim(rtrim(number_format((float) $this->currentMemberDiscountPercent, 2, '.', ''), '0'), '.') }}%)
+                            @endif
+                        </span>
+                        <span style="color: var(--gray-500);">Rp {{ number_format((float) $this->currentMemberDiscountTotal, 0, ',', '.') }}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; font-size: 0.75rem;">
                         <span style="color: var(--gray-500);">Pajak</span>
@@ -768,7 +784,7 @@
 
                     <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center;">
                         <span style="font-size: 1rem; font-weight: 700; color: var(--gray-900);" class="dark:text-white">Total</span>
-                        <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary-600);">Rp {{ number_format((float) $this->cartSubtotal, 0, ',', '.') }}</span>
+                        <span style="font-size: 1.25rem; font-weight: 700; color: var(--primary-600);">Rp {{ number_format((float) $this->cartGrandTotal, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
@@ -803,7 +819,7 @@
                 <div style="padding: 1rem 1.25rem;" class="pos-payment-modal-header">
                     <h3 style="font-size: 1.125rem; font-weight: 700;" class="pos-payment-title">Pilih Metode Pembayaran</h3>
                     <p style="font-size: 0.875rem; margin-top: 0.25rem;" class="pos-payment-muted">
-                        Total transaksi: <strong>Rp {{ number_format((float) $this->cartSubtotal, 0, ',', '.') }}</strong>
+                        Total transaksi: <strong>Rp {{ number_format((float) $this->cartGrandTotal, 0, ',', '.') }}</strong>
                     </p>
                     @if ($isOffline)
                         <p style="margin-top: 0.5rem; font-size: 0.75rem; color: #f59e0b;">
@@ -813,6 +829,28 @@
                 </div>
 
                 <div style="padding: 1rem 1.25rem;">
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem; color: #111827;">
+                            Customer
+                        </label>
+                        <select
+                            wire:model.live="selectedCustomerId"
+                            style="width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem;"
+                            class="pos-payment-input"
+                        >
+                            <option value="">Walk In / Tanpa customer</option>
+                            @foreach ($this->availableCustomers as $customerId => $customerLabel)
+                                <option value="{{ $customerId }}">{{ $customerLabel }}</option>
+                            @endforeach
+                        </select>
+                        @if ($this->selectedCustomer?->is_member)
+                            <div style="margin-top: 0.5rem; font-size: 0.8rem; color: #065f46;">
+                                Customer member aktif dengan diskon {{ rtrim(rtrim(number_format((float) $this->currentMemberDiscountPercent, 2, '.', ''), '0'), '.') }}%.
+                                Potongan otomatis: Rp {{ number_format((float) $this->currentMemberDiscountTotal, 0, ',', '.') }}.
+                            </div>
+                        @endif
+                    </div>
+
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                         <button
                             type="button"
@@ -848,7 +886,7 @@
                                 wire:model.live="cashPaidAmount"
                                 style="width: 100%; padding: 0.625rem 0.75rem; border-radius: 0.5rem;"
                                 class="pos-payment-input"
-                                placeholder="Kosongkan = pas sesuai total"
+                                placeholder="Kosongkan = pas sesuai total akhir"
                             />
                             <div style="margin-top: 0.5rem; display: flex; justify-content: space-between; font-size: 0.85rem;">
                                 <span class="pos-payment-muted">Kembalian</span>
@@ -947,6 +985,8 @@
                             <span>No. Order</span><span>{{ (string) ($receiptData['order_number'] ?? '-') }}</span>
                             <span>Waktu</span><span>{{ (string) ($receiptData['ordered_at'] ?? '-') }}</span>
                             <span>Kasir</span><span>{{ (string) ($receiptData['cashier_name'] ?? '-') }}</span>
+                            <span>Customer</span><span>{{ (string) ($receiptData['customer_name'] ?? 'Walk In') }}</span>
+                            <span>Tipe</span><span>{{ (string) (($receiptData['customer_type'] ?? 'walk_in') === 'member' ? 'Member' : 'Walk In') }}</span>
                             <span>Metode</span><span>{{ strtoupper((string) ($receiptData['payment_method'] ?? '-')) }}</span>
                         </div>
                         <hr style="margin: 0.625rem 0; border-color: #e5e7eb;">
@@ -961,7 +1001,8 @@
                         <hr style="margin: 0.625rem 0; border-color: #e5e7eb;">
                         <div style="display: grid; grid-template-columns: 1fr auto; gap: 0.25rem; font-size: 0.82rem; color: #111827;">
                             <span>Subtotal</span><span>Rp {{ number_format((float) ($receiptData['subtotal'] ?? 0), 0, ',', '.') }}</span>
-                            <span>Diskon</span><span>Rp {{ number_format((float) ($receiptData['discount_total'] ?? 0), 0, ',', '.') }}</span>
+                            <span>Diskon Member{{ (float) ($receiptData['member_discount_percent'] ?? 0) > 0 ? ' (' . rtrim(rtrim(number_format((float) ($receiptData['member_discount_percent'] ?? 0), 2, '.', ''), '0'), '.') . '%)' : '' }}</span><span>Rp {{ number_format((float) ($receiptData['member_discount_total'] ?? 0), 0, ',', '.') }}</span>
+                            <span>Total Diskon</span><span>Rp {{ number_format((float) ($receiptData['discount_total'] ?? 0), 0, ',', '.') }}</span>
                             <span>Pajak</span><span>Rp {{ number_format((float) ($receiptData['tax_total'] ?? 0), 0, ',', '.') }}</span>
                             <span>Service</span><span>Rp {{ number_format((float) ($receiptData['service_total'] ?? 0), 0, ',', '.') }}</span>
                             <span style="font-weight: 700;">Total</span><span style="font-weight: 700;">Rp {{ number_format((float) ($receiptData['grand_total'] ?? 0), 0, ',', '.') }}</span>
@@ -1464,6 +1505,8 @@
                         `Order   : ${receipt.order_number ?? '-'}\n`,
                         `Waktu   : ${receipt.ordered_at ?? '-'}\n`,
                         `Kasir   : ${receipt.cashier_name ?? '-'}\n`,
+                        `Customer: ${receipt.customer_name ?? 'Walk In'}\n`,
+                        `Tipe    : ${String(receipt.customer_type ?? 'walk_in') === 'member' ? 'Member' : 'Walk In'}\n`,
                         `Metode  : ${(receipt.payment_method ?? '-').toUpperCase()}\n`,
                         '--------------------------------\n',
                     ];
@@ -1480,6 +1523,7 @@
 
                     lines.push('--------------------------------\n');
                     lines.push(`Subtotal : ${formatRupiah(receipt.subtotal)}\n`);
+                    lines.push(`Disc Mbr : ${formatRupiah(receipt.member_discount_total)}\n`);
                     lines.push(`Diskon   : ${formatRupiah(receipt.discount_total)}\n`);
                     lines.push(`Pajak    : ${formatRupiah(receipt.tax_total)}\n`);
                     lines.push(`Service  : ${formatRupiah(receipt.service_total)}\n`);
@@ -1506,6 +1550,8 @@
                                 <div style="margin-bottom: 2px;">Order: ${escapeHtml(receipt.order_number ?? '-')}</div>
                                 <div style="margin-bottom: 2px;">Waktu: ${escapeHtml(receipt.ordered_at ?? '-')}</div>
                                 <div style="margin-bottom: 2px;">Kasir: ${escapeHtml(receipt.cashier_name ?? '-')}</div>
+                                <div style="margin-bottom: 2px;">Customer: ${escapeHtml(receipt.customer_name ?? 'Walk In')}</div>
+                                <div style="margin-bottom: 2px;">Tipe: ${escapeHtml(String(receipt.customer_type ?? 'walk_in') === 'member' ? 'Member' : 'Walk In')}</div>
                                 <div style="margin-bottom: 8px;">Metode: ${escapeHtml((receipt.payment_method ?? '-').toUpperCase())}</div>
                                 <table style="width:100%; border-collapse: collapse; margin-bottom: 8px;">
                                     <tbody>${rowsHtml}</tbody>
@@ -1513,6 +1559,7 @@
                                 <hr>
                                 <table style="width:100%; border-collapse: collapse;">
                                     <tr><td>Subtotal</td><td style="text-align:right;">${formatRupiah(receipt.subtotal)}</td></tr>
+                                    <tr><td>Diskon Member</td><td style="text-align:right;">${formatRupiah(receipt.member_discount_total)}</td></tr>
                                     <tr><td>Diskon</td><td style="text-align:right;">${formatRupiah(receipt.discount_total)}</td></tr>
                                     <tr><td>Pajak</td><td style="text-align:right;">${formatRupiah(receipt.tax_total)}</td></tr>
                                     <tr><td>Service</td><td style="text-align:right;">${formatRupiah(receipt.service_total)}</td></tr>
