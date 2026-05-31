@@ -11,11 +11,14 @@ class Payment extends Model
 
     protected $fillable = [
         'order_id',
+        'cashier_session_id',
         'method',
         'amount',
         'status',
         'gateway_provider',
         'gateway_ref',
+        'gateway_token',
+        'gateway_redirect_url',
         'paid_at',
     ];
 
@@ -38,5 +41,10 @@ class Payment extends Model
     public function order()
     {
         return $this->belongsTo(Order::class);
+    }
+
+    public function cashierSession()
+    {
+        return $this->belongsTo(CashierSession::class);
     }
 }

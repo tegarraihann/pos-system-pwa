@@ -12,6 +12,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -41,15 +42,21 @@ class MenuVariantsRelationManager extends RelationManager
                         TextInput::make('size_varian')
                             ->label('Ukuran Varian')
                             ->maxLength(50),
-                        TextInput::make('temperature')
+                        Select::make('temperature')
                             ->label('Suhu')
-                            ->maxLength(50),
-                        TextInput::make('sugar_level')
+                            ->options(MenuVariant::temperatureOptions())
+                            ->placeholder('Pilih suhu')
+                            ->native(false),
+                        Select::make('sugar_level')
                             ->label('Level Gula')
-                            ->maxLength(50),
-                        TextInput::make('ice_level')
+                            ->options(MenuVariant::sugarLevelOptions())
+                            ->placeholder('Pilih level gula')
+                            ->native(false),
+                        Select::make('ice_level')
                             ->label('Level Es')
-                            ->maxLength(50),
+                            ->options(MenuVariant::iceLevelOptions())
+                            ->placeholder('Pilih level es')
+                            ->native(false),
                         TextInput::make('price')
                             ->label('Harga')
                             ->prefix('Rp')

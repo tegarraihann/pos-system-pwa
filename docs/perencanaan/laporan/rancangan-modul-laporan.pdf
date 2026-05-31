@@ -1,0 +1,332 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 5 /Kids [5 0 R 7 0 R 9 0 R 11 0 R 13 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+4 0 obj
+<< /Length 1833 >>
+stream
+BT
+/F1 12 Tf
+50 790 Td
+(RANCANGAN MODUL LAPORAN) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (Tanggal: 2026-05-14) Tj
+0 -14 Td () Tj
+0 -14 Td (TUJUAN) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (Dokumen ini menyimpan rancangan awal modul laporan untuk sistem POS. Fokus utamanya:) Tj
+0 -14 Td () Tj
+0 -14 Td (- memisahkan laporan operasional, manajerial, dan keuangan) Tj
+0 -14 Td (- membatasi akses laporan berdasarkan role) Tj
+0 -14 Td (- menyiapkan tahapan implementasi yang realistis terhadap struktur sistem saat ini) Tj
+0 -14 Td () Tj
+0 -14 Td (PRINSIP DASAR) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (1. Kasir tidak perlu akses ke laporan global atau data sensitif.) Tj
+0 -14 Td (2. Admin fokus ke laporan operasional outlet.) Tj
+0 -14 Td (3. Super admin atau owner mendapat akses penuh, termasuk laba rugi.) Tj
+0 -14 Td (4. Laporan penjualan dapat dibuat lebih dulu tanpa menunggu integrasi resep ke HPP.) Tj
+0 -14 Td (5. Laporan laba rugi yang akurat sebaiknya menunggu integrasi resep, konsumsi bahan, dan) Tj
+0 -14 Td (HPP.) Tj
+0 -14 Td () Tj
+0 -14 Td (KLASIFIKASI LAPORAN) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (1. LAPORAN OPERASIONAL) Tj
+0 -14 Td () Tj
+0 -14 Td (Bisa dibuat dengan data yang sudah ada.) Tj
+0 -14 Td () Tj
+0 -14 Td (Cakupan:) Tj
+0 -14 Td () Tj
+0 -14 Td (- penjualan harian) Tj
+0 -14 Td (- jumlah transaksi) Tj
+0 -14 Td (- metode pembayaran) Tj
+0 -14 Td (- diskon) Tj
+0 -14 Td (- top menu berdasarkan qty dan omzet) Tj
+0 -14 Td (- sesi kasir) Tj
+0 -14 Td (- selisih kas) Tj
+0 -14 Td (- absensi kasir) Tj
+0 -14 Td (- stok menipis) Tj
+0 -14 Td () Tj
+0 -14 Td (Sumber data:) Tj
+0 -14 Td () Tj
+0 -14 Td (- orders) Tj
+0 -14 Td (- order_items) Tj
+0 -14 Td (- payments) Tj
+0 -14 Td (- cashier_sessions) Tj
+0 -14 Td (- attendances) Tj
+0 -14 Td (- stock_levels) Tj
+0 -14 Td (- menu_variants) Tj
+0 -14 Td () Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 1603 >>
+stream
+BT
+/F1 12 Tf
+50 790 Td
+(Target role:) Tj
+0 -14 Td () Tj
+0 -14 Td (- admin) Tj
+0 -14 Td (- super_admin) Tj
+0 -14 Td (- supervisor jika nanti ada) Tj
+0 -14 Td () Tj
+0 -14 Td (2. LAPORAN MANAJERIAL) Tj
+0 -14 Td () Tj
+0 -14 Td (Fokus ke monitoring performa dan tren.) Tj
+0 -14 Td () Tj
+0 -14 Td (Cakupan:) Tj
+0 -14 Td () Tj
+0 -14 Td (- tren penjualan harian, mingguan, bulanan) Tj
+0 -14 Td (- produk terlaris) Tj
+0 -14 Td (- produk kurang laku) Tj
+0 -14 Td (- rata-rata nilai transaksi) Tj
+0 -14 Td (- performa kasir) Tj
+0 -14 Td (- performa outlet) Tj
+0 -14 Td (- efektivitas diskon member) Tj
+0 -14 Td () Tj
+0 -14 Td (Target role:) Tj
+0 -14 Td () Tj
+0 -14 Td (- admin) Tj
+0 -14 Td (- super_admin) Tj
+0 -14 Td (- supervisor dengan scope outlet) Tj
+0 -14 Td () Tj
+0 -14 Td (3. LAPORAN KEUANGAN / LABA RUGI) Tj
+0 -14 Td () Tj
+0 -14 Td (Ini tahap lanjutan dan tidak ideal dibuat sebelum engine HPP siap.) Tj
+0 -14 Td () Tj
+0 -14 Td (Cakupan:) Tj
+0 -14 Td () Tj
+0 -14 Td (- HPP per item) Tj
+0 -14 Td (- HPP per order) Tj
+0 -14 Td (- laba kotor) Tj
+0 -14 Td (- margin per menu) Tj
+0 -14 Td (- laba per periode) Tj
+0 -14 Td (- kontribusi produk) Tj
+0 -14 Td () Tj
+0 -14 Td (Ketergantungan:) Tj
+0 -14 Td () Tj
+0 -14 Td (- resep terhubung ke konsumsi bahan baku) Tj
+0 -14 Td (- harga bahan baku dipakai untuk hitung HPP) Tj
+0 -14 Td (- ada snapshot biaya saat transaksi terjadi) Tj
+0 -14 Td () Tj
+0 -14 Td (Target role:) Tj
+0 -14 Td () Tj
+0 -14 Td (- super_admin) Tj
+0 -14 Td (- owner) Tj
+0 -14 Td (- admin hanya jika memang diberi akses khusus) Tj
+0 -14 Td () Tj
+0 -14 Td (ROLE DAN HAK AKSES) Tj
+0 -14 Td () Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 1586 >>
+stream
+BT
+/F1 12 Tf
+50 790 Td
+() Tj
+0 -14 Td (KASIR) Tj
+0 -14 Td () Tj
+0 -14 Td (Boleh:) Tj
+0 -14 Td () Tj
+0 -14 Td (- melihat transaksi sendiri) Tj
+0 -14 Td (- melihat shift sendiri) Tj
+0 -14 Td (- melihat sesi kas sendiri) Tj
+0 -14 Td () Tj
+0 -14 Td (Tidak boleh:) Tj
+0 -14 Td () Tj
+0 -14 Td (- melihat laporan global) Tj
+0 -14 Td (- melihat margin) Tj
+0 -14 Td (- melihat laba rugi) Tj
+0 -14 Td (- melihat laporan lintas kasir atau lintas outlet) Tj
+0 -14 Td () Tj
+0 -14 Td (ADMIN) Tj
+0 -14 Td () Tj
+0 -14 Td (Boleh:) Tj
+0 -14 Td () Tj
+0 -14 Td (- melihat laporan penjualan) Tj
+0 -14 Td (- melihat laporan kasir) Tj
+0 -14 Td (- melihat laporan absensi) Tj
+0 -14 Td (- melihat laporan stok) Tj
+0 -14 Td (- melihat dashboard operasional) Tj
+0 -14 Td () Tj
+0 -14 Td (Perlu dipertimbangkan terpisah:) Tj
+0 -14 Td () Tj
+0 -14 Td (- akses ke laporan laba rugi) Tj
+0 -14 Td () Tj
+0 -14 Td (SUPERVISOR / MANAGER OUTLET) Tj
+0 -14 Td () Tj
+0 -14 Td (Boleh:) Tj
+0 -14 Td () Tj
+0 -14 Td (- melihat laporan outlet yang dia tangani) Tj
+0 -14 Td (- melihat sesi kas, absensi, penjualan, dan stok outlet) Tj
+0 -14 Td () Tj
+0 -14 Td (Tidak perlu:) Tj
+0 -14 Td () Tj
+0 -14 Td (- akses ke seluruh outlet jika bukan tanggung jawabnya) Tj
+0 -14 Td () Tj
+0 -14 Td (SUPER ADMIN / OWNER) Tj
+0 -14 Td () Tj
+0 -14 Td (Boleh:) Tj
+0 -14 Td () Tj
+0 -14 Td (- melihat semua laporan) Tj
+0 -14 Td (- melihat laporan laba rugi) Tj
+0 -14 Td (- melihat performa lintas outlet) Tj
+0 -14 Td (- melihat data sensitif dan historis penuh) Tj
+0 -14 Td () Tj
+0 -14 Td (PERMISSION YANG DISARANKAN) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 1754 >>
+stream
+BT
+/F1 12 Tf
+50 790 Td
+(- ViewSalesReport:Report) Tj
+0 -14 Td (- ViewCashierReport:Report) Tj
+0 -14 Td (- ViewAttendanceReport:Report) Tj
+0 -14 Td (- ViewStockReport:Report) Tj
+0 -14 Td (- ViewManagementReport:Report) Tj
+0 -14 Td (- ViewProfitLossReport:Report) Tj
+0 -14 Td () Tj
+0 -14 Td (Pembagian awal:) Tj
+0 -14 Td () Tj
+0 -14 Td (- kasir: tidak diberi permission laporan global) Tj
+0 -14 Td (- admin: ViewSalesReport, ViewCashierReport, ViewAttendanceReport, ViewStockReport) Tj
+0 -14 Td (- supervisor: sama dengan admin tetapi nanti dibatasi scope outlet) Tj
+0 -14 Td (- super_admin: semua permission) Tj
+0 -14 Td () Tj
+0 -14 Td (STRUKTUR MODUL) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (Disarankan memakai navigation group `Reports` dengan beberapa halaman terpisah:) Tj
+0 -14 Td () Tj
+0 -14 Td (- Laporan Penjualan) Tj
+0 -14 Td (- Laporan Kasir) Tj
+0 -14 Td (- Laporan Absensi) Tj
+0 -14 Td (- Laporan Stok) Tj
+0 -14 Td (- Laporan Laba Rugi) Tj
+0 -14 Td () Tj
+0 -14 Td (Jangan gabungkan semua ke satu halaman besar pada fase awal.) Tj
+0 -14 Td () Tj
+0 -14 Td (TAHAPAN IMPLEMENTASI) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (FASE 1) Tj
+0 -14 Td () Tj
+0 -14 Td (- Laporan Penjualan) Tj
+0 -14 Td (- Laporan Sesi Kasir) Tj
+0 -14 Td (- Laporan Absensi) Tj
+0 -14 Td (- Laporan Stok Menipis) Tj
+0 -14 Td () Tj
+0 -14 Td (FASE 2) Tj
+0 -14 Td () Tj
+0 -14 Td (- Dashboard manajerial) Tj
+0 -14 Td (- tren penjualan) Tj
+0 -14 Td (- performa menu) Tj
+0 -14 Td (- performa kasir) Tj
+0 -14 Td () Tj
+0 -14 Td (FASE 3) Tj
+0 -14 Td () Tj
+0 -14 Td (- integrasi resep ke HPP) Tj
+0 -14 Td (- konsumsi bahan otomatis saat transaksi) Tj
+0 -14 Td (- snapshot biaya per transaksi) Tj
+0 -14 Td () Tj
+0 -14 Td (FASE 4) Tj
+0 -14 Td () Tj
+0 -14 Td (- Laporan Laba Rugi) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 1166 >>
+stream
+BT
+/F1 12 Tf
+50 790 Td
+(- margin per menu) Tj
+0 -14 Td (- profitabilitas per periode) Tj
+0 -14 Td () Tj
+0 -14 Td (CATATAN TEKNIS PENTING) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (1. Laporan penjualan tidak wajib menunggu resep.) Tj
+0 -14 Td (2. Laporan laba rugi yang akurat sebaiknya menunggu HPP.) Tj
+0 -14 Td (3. Jika laba rugi dipaksa dibuat tanpa HPP, hasilnya hanya estimasi kasar.) Tj
+0 -14 Td (4. Scope data per role harus dibatasi di query, bukan hanya di menu navigasi.) Tj
+0 -14 Td (5. Jika nanti ada multi outlet, semua laporan harus mendukung filter outlet.) Tj
+0 -14 Td () Tj
+0 -14 Td (REKOMENDASI) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (Urutan paling aman untuk implementasi:) Tj
+0 -14 Td () Tj
+0 -14 Td (1. bangun laporan operasional lebih dulu) Tj
+0 -14 Td (2. siapkan permission dan scope role) Tj
+0 -14 Td (3. tambah dashboard manajerial) Tj
+0 -14 Td (4. integrasikan resep ke HPP) Tj
+0 -14 Td (5. baru buat laporan laba rugi penuh) Tj
+0 -14 Td () Tj
+0 -14 Td (STATUS) Tj
+0 -14 Td () Tj
+0 -14 Td () Tj
+0 -14 Td (Dokumen ini adalah rancangan awal dan disimpan sebagai referensi sebelum implementasi) Tj
+0 -14 Td (modul laporan dimulai.) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents 12 0 R >>
+endobj
+xref
+0 14
+0000000000 65535 f 
+0000000015 00000 n 
+0000000064 00000 n 
+0000000147 00000 n 
+0000000217 00000 n 
+0000002102 00000 n 
+0000002228 00000 n 
+0000003883 00000 n 
+0000004009 00000 n 
+0000005647 00000 n 
+0000005773 00000 n 
+0000007580 00000 n 
+0000007708 00000 n 
+0000008927 00000 n 
+trailer
+<< /Size 14 /Root 1 0 R >>
+startxref
+9055
+%%EOF

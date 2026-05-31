@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MenuVariant;
 use App\Models\Order;
 use App\Models\StockLocation;
+use App\Services\OrderAccountingService;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -147,9 +148,7 @@ class OfflineOrderSyncController extends Controller
                 ]);
 
                 if ($order->status === Order::STATUS_DRAFT) {
-                    $order->update([
-                        'status' => Order::STATUS_SERVED,
-                    ]);
+                    $order = app(OrderAccountingService::class)->markAsServed($order);
                 }
 
                 return $order->fresh();

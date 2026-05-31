@@ -35,19 +35,11 @@ class OrderForm
                             ->seconds(false),
                         Select::make('order_type')
                             ->label('Tipe Order')
-                            ->options([
-                                Order::TYPE_DINE_IN => 'Dine In',
-                                Order::TYPE_TAKE_AWAY => 'Take Away',
-                                Order::TYPE_DELIVERY => 'Delivery',
-                            ])
+                            ->options(Order::typeOptions())
                             ->required(),
                         Select::make('status')
                             ->label('Status')
-                            ->options([
-                                Order::STATUS_DRAFT => 'Draf',
-                                Order::STATUS_SERVED => 'Selesai',
-                                Order::STATUS_CANCELED => 'Dibatalkan',
-                            ])
+                            ->options(Order::statusOptions())
                             ->required(),
                         Select::make('stock_location_id')
                             ->label('Lokasi Stok')
@@ -71,10 +63,7 @@ class OrderForm
                     ->schema([
                         Select::make('customer_type')
                             ->label('Tipe Customer')
-                            ->options([
-                                Order::CUSTOMER_WALK_IN => 'Walk In',
-                                Order::CUSTOMER_MEMBER => 'Member',
-                            ])
+                            ->options(Order::customerTypeOptions())
                             ->default(Order::CUSTOMER_WALK_IN)
                             ->live(),
                         Select::make('customer_id')
@@ -85,6 +74,19 @@ class OrderForm
                                 ->all())
                             ->searchable()
                             ->visible(fn (Get $get): bool => $get('customer_type') === Order::CUSTOMER_MEMBER),
+                        Select::make('order_source')
+                            ->label('Sumber Order')
+                            ->options(Order::sourceOptions())
+                            ->disabled()
+                            ->dehydrated(false),
+                        TextInput::make('guest_name')
+                            ->label('Nama Guest')
+                            ->maxLength(120)
+                            ->placeholder('Contoh: Budi'),
+                        TextInput::make('guest_phone')
+                            ->label('Nomor HP Guest')
+                            ->maxLength(50)
+                            ->placeholder('Contoh: 0812xxxx'),
                         TextInput::make('table_number')
                             ->label('Nomor Meja')
                             ->maxLength(50)

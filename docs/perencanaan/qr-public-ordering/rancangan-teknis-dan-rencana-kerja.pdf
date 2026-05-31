@@ -1,0 +1,869 @@
+%PDF-1.4
+%‚„œ”
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+3 0 obj
+<< /Length 3157 >>
+stream
+BT
+/F2 16 Tf
+1 0 0 1 52 782 Tm
+(Rancangan Teknis dan Rencana Kerja) Tj
+/F2 13 Tf
+1 0 0 1 52 751 Tm
+(Perbaikan Fitur QR Public Ordering) Tj
+/F1 10 Tf
+1 0 0 1 52 724 Tm
+(Dokumen ini merangkum rancangan teknis dan rencana kerja untuk memperbaiki fitur QR ) Tj
+/F1 10 Tf
+1 0 0 1 52 709 Tm
+(public ordering agar customer dapat memesan menu, lalu langsung melanjutkan ke ) Tj
+/F1 10 Tf
+1 0 0 1 52 694 Tm
+(pembayaran Midtrans tanpa menunggu konfirmasi manual dari kasir.) Tj
+/F2 13 Tf
+1 0 0 1 52 672 Tm
+(Latar Belakang) Tj
+/F1 10 Tf
+1 0 0 1 52 645 Tm
+(Implementasi QR public ordering saat ini masih memakai alur:) Tj
+/F1 10 Tf
+1 0 0 1 52 623 Tm
+(- Customer scan QR code) Tj
+/F1 10 Tf
+1 0 0 1 52 608 Tm
+(- Customer pilih menu) Tj
+/F1 10 Tf
+1 0 0 1 52 593 Tm
+(- Customer isi form guest) Tj
+/F1 10 Tf
+1 0 0 1 52 578 Tm
+(- Customer klik kirim pesanan) Tj
+/F1 10 Tf
+1 0 0 1 52 563 Tm
+(- Order masuk dengan status `pending_confirmation`) Tj
+/F1 10 Tf
+1 0 0 1 52 548 Tm
+(- Kasir atau admin mengubah status menjadi `draft`) Tj
+/F1 10 Tf
+1 0 0 1 52 526 Tm
+(Masalah dari alur tersebut:) Tj
+/F1 10 Tf
+1 0 0 1 52 504 Tm
+(- Belum ada hubungan langsung antara order publik dan pembayaran Midtrans) Tj
+/F1 10 Tf
+1 0 0 1 52 489 Tm
+(- Status order belum jelas untuk membedakan:) Tj
+/F1 10 Tf
+1 0 0 1 52 474 Tm
+(  - belum bayar) Tj
+/F1 10 Tf
+1 0 0 1 52 459 Tm
+(  - sudah bayar) Tj
+/F1 10 Tf
+1 0 0 1 52 444 Tm
+(  - sedang diproses) Tj
+/F1 10 Tf
+1 0 0 1 52 429 Tm
+(  - selesai disajikan) Tj
+/F1 10 Tf
+1 0 0 1 52 414 Tm
+(- Order publik yang sudah dikonfirmasi belum punya jalur operasional yang rapi ) Tj
+/F1 10 Tf
+1 0 0 1 52 399 Tm
+(sampai selesai) Tj
+/F1 10 Tf
+1 0 0 1 52 384 Tm
+(- Status `served` berpotensi tercampur antara arti "sudah dibayar" dan "pesanan ) Tj
+/F1 10 Tf
+1 0 0 1 52 369 Tm
+(sudah selesai") Tj
+/F1 10 Tf
+1 0 0 1 52 347 Tm
+(Karena itu, fitur ini perlu diubah ke model `pay-first`, yaitu customer memesan lalu ) Tj
+/F1 10 Tf
+1 0 0 1 52 332 Tm
+(langsung diarahkan ke pembayaran Midtrans.) Tj
+/F2 13 Tf
+1 0 0 1 52 310 Tm
+(Tujuan Perbaikan) Tj
+/F1 10 Tf
+1 0 0 1 52 283 Tm
+(- Customer bisa scan QR, pilih menu, isi data singkat, lalu langsung lanjut ke ) Tj
+/F1 10 Tf
+1 0 0 1 52 268 Tm
+(pembayaran) Tj
+/F1 10 Tf
+1 0 0 1 52 253 Tm
+(- Sistem memakai konfigurasi Midtrans yang sudah ada di project) Tj
+/F1 10 Tf
+1 0 0 1 52 238 Tm
+(- Hanya order yang pembayarannya valid yang masuk ke antrean operasional) Tj
+/F1 10 Tf
+1 0 0 1 52 223 Tm
+(- Status order dan status payment dipisahkan dengan jelas) Tj
+/F1 10 Tf
+1 0 0 1 52 208 Tm
+(- Flow public ordering tidak merusak alur POS internal yang sudah berjalan) Tj
+/F2 13 Tf
+1 0 0 1 52 186 Tm
+(Rancangan Flow Baru) Tj
+/F2 11 Tf
+1 0 0 1 52 159 Tm
+(Flow customer) Tj
+/F1 10 Tf
+1 0 0 1 52 134 Tm
+(1. Customer scan QR code meja) Tj
+/F1 10 Tf
+1 0 0 1 52 119 Tm
+(2. Customer membuka halaman katalog menu publik) Tj
+/F1 10 Tf
+1 0 0 1 52 104 Tm
+(3. Customer memilih menu dan jumlah) Tj
+/F1 10 Tf
+1 0 0 1 52 89 Tm
+(4. Customer mengisi nama, nomor HP opsional, dan catatan) Tj
+/F1 10 Tf
+1 0 0 1 52 74 Tm
+(5. Customer klik tombol `Lanjut ke Pembayaran`) Tj
+/F1 10 Tf
+1 0 0 1 52 59 Tm
+(6. Sistem membuat order publik dan payment pending) Tj
+ET
+endstream
+endobj
+4 0 obj
+<< /Length 2883 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 52 782 Tm
+(7. Sistem memunculkan pembayaran Midtrans Snap atau QRIS) Tj
+/F1 10 Tf
+1 0 0 1 52 767 Tm
+(8. Customer menyelesaikan pembayaran) Tj
+/F1 10 Tf
+1 0 0 1 52 752 Tm
+(9. Webhook Midtrans memperbarui status payment dan order) Tj
+/F1 10 Tf
+1 0 0 1 52 737 Tm
+(10. Jika pembayaran sukses, order masuk ke antrean outlet) Tj
+/F2 11 Tf
+1 0 0 1 52 715 Tm
+(Flow internal) Tj
+/F1 10 Tf
+1 0 0 1 52 690 Tm
+(1. Order dengan status `pending_payment` belum boleh diproses outlet) Tj
+/F1 10 Tf
+1 0 0 1 52 675 Tm
+(2. Jika payment sukses, order menjadi `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 660 Tm
+(3. Staff outlet mengubah order ke `processing` saat mulai menyiapkan) Tj
+/F1 10 Tf
+1 0 0 1 52 645 Tm
+(4. Staff outlet mengubah order ke `served` saat pesanan selesai dan diserahkan) Tj
+/F1 10 Tf
+1 0 0 1 52 630 Tm
+(5. Jika pembayaran expired atau gagal, order tidak diproses) Tj
+/F2 13 Tf
+1 0 0 1 52 608 Tm
+(Rancangan Status) Tj
+/F2 11 Tf
+1 0 0 1 52 581 Tm
+(Status order yang disarankan) Tj
+/F1 10 Tf
+1 0 0 1 52 556 Tm
+(- `pending_payment`) Tj
+/F1 10 Tf
+1 0 0 1 52 541 Tm
+(  - order sudah dibuat, menunggu pembayaran customer) Tj
+/F1 10 Tf
+1 0 0 1 52 526 Tm
+(- `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 511 Tm
+(  - pembayaran sukses, order sah masuk operasional) Tj
+/F1 10 Tf
+1 0 0 1 52 496 Tm
+(- `processing`) Tj
+/F1 10 Tf
+1 0 0 1 52 481 Tm
+(  - staff outlet sedang memproses pesanan) Tj
+/F1 10 Tf
+1 0 0 1 52 466 Tm
+(- `served`) Tj
+/F1 10 Tf
+1 0 0 1 52 451 Tm
+(  - pesanan selesai dan sudah diserahkan) Tj
+/F1 10 Tf
+1 0 0 1 52 436 Tm
+(- `canceled`) Tj
+/F1 10 Tf
+1 0 0 1 52 421 Tm
+(  - dibatalkan manual) Tj
+/F1 10 Tf
+1 0 0 1 52 406 Tm
+(- `expired`) Tj
+/F1 10 Tf
+1 0 0 1 52 391 Tm
+(  - pembayaran kadaluarsa) Tj
+/F1 10 Tf
+1 0 0 1 52 376 Tm
+(- `failed`) Tj
+/F1 10 Tf
+1 0 0 1 52 361 Tm
+(  - opsional, dipakai bila ingin membedakan kegagalan pembayaran) Tj
+/F2 11 Tf
+1 0 0 1 52 339 Tm
+(Status payment yang dipertahankan) Tj
+/F1 10 Tf
+1 0 0 1 52 314 Tm
+(- `pending`) Tj
+/F1 10 Tf
+1 0 0 1 52 299 Tm
+(- `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 284 Tm
+(- `failed`) Tj
+/F1 10 Tf
+1 0 0 1 52 269 Tm
+(- `expired`) Tj
+/F1 10 Tf
+1 0 0 1 52 254 Tm
+(- `canceled`) Tj
+/F1 10 Tf
+1 0 0 1 52 239 Tm
+(- `refunded`) Tj
+/F2 13 Tf
+1 0 0 1 52 217 Tm
+(Aturan Utama) Tj
+/F1 10 Tf
+1 0 0 1 52 190 Tm
+(- `served` tidak boleh lagi dipakai sebagai arti "sudah dibayar") Tj
+/F1 10 Tf
+1 0 0 1 52 175 Tm
+(- Payment sukses hanya mengubah order ke `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 160 Tm
+(- Order baru boleh diproses outlet jika payment berstatus `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 145 Tm
+(- Webhook Midtrans menjadi source of truth untuk status pembayaran) Tj
+/F1 10 Tf
+1 0 0 1 52 130 Tm
+(- Flow POS internal tetap memakai alurnya sendiri dan tidak boleh rusak karena ) Tj
+/F1 10 Tf
+1 0 0 1 52 115 Tm
+(perubahan QR ordering) Tj
+/F2 13 Tf
+1 0 0 1 52 93 Tm
+(Perubahan Teknis yang Diperlukan) Tj
+/F2 11 Tf
+1 0 0 1 52 66 Tm
+(1. Model Order) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Length 2654 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 52 782 Tm
+(File terdampak:) Tj
+/F1 10 Tf
+1 0 0 1 52 760 Tm
+(- `app/Models/Order.php`) Tj
+/F1 10 Tf
+1 0 0 1 52 738 Tm
+(Perubahan:) Tj
+/F1 10 Tf
+1 0 0 1 52 716 Tm
+(- Tambah konstanta status baru:) Tj
+/F1 10 Tf
+1 0 0 1 52 701 Tm
+(  - `pending_payment`) Tj
+/F1 10 Tf
+1 0 0 1 52 686 Tm
+(  - `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 671 Tm
+(  - `processing`) Tj
+/F1 10 Tf
+1 0 0 1 52 656 Tm
+(  - `expired`) Tj
+/F1 10 Tf
+1 0 0 1 52 641 Tm
+(  - opsional `failed`) Tj
+/F1 10 Tf
+1 0 0 1 52 626 Tm
+(- Perbarui `statusOptions\(\)`) Tj
+/F1 10 Tf
+1 0 0 1 52 611 Tm
+(- Pertahankan `order_source = public_qr`) Tj
+/F1 10 Tf
+1 0 0 1 52 596 Tm
+(- Jangan memaksa semua order internal memakai status baru secara agresif) Tj
+/F1 10 Tf
+1 0 0 1 52 574 Tm
+(Catatan:) Tj
+/F1 10 Tf
+1 0 0 1 52 552 Tm
+(- Flow POS internal yang sekarang memakai `draft -> served` harus tetap aman) Tj
+/F1 10 Tf
+1 0 0 1 52 537 Tm
+(- Logic untuk order `public_qr` perlu dibedakan dari `pos`) Tj
+/F2 11 Tf
+1 0 0 1 52 515 Tm
+(2. Service Public Ordering) Tj
+/F1 10 Tf
+1 0 0 1 52 490 Tm
+(File terdampak:) Tj
+/F1 10 Tf
+1 0 0 1 52 468 Tm
+(- `app/Services/PublicOrderingService.php`) Tj
+/F1 10 Tf
+1 0 0 1 52 446 Tm
+(Perubahan:) Tj
+/F1 10 Tf
+1 0 0 1 52 424 Tm
+(- Ganti flow `placeOrder\(\)` menjadi dua tahap:) Tj
+/F1 10 Tf
+1 0 0 1 52 409 Tm
+(  - buat order status `pending_payment`) Tj
+/F1 10 Tf
+1 0 0 1 52 394 Tm
+(  - buat payment status `pending`) Tj
+/F1 10 Tf
+1 0 0 1 52 379 Tm
+(- Simpan `payment_method = midtrans`) Tj
+/F1 10 Tf
+1 0 0 1 52 364 Tm
+(- Siapkan `gateway_ref` untuk Midtrans) Tj
+/F1 10 Tf
+1 0 0 1 52 349 Tm
+(- Pastikan validasi stok dan menu tetap dijalankan sebelum transaksi dibuat) Tj
+/F1 10 Tf
+1 0 0 1 52 327 Tm
+(Rekomendasi:) Tj
+/F1 10 Tf
+1 0 0 1 52 305 Tm
+(- Pisahkan method untuk:) Tj
+/F1 10 Tf
+1 0 0 1 52 290 Tm
+(  - create order pending payment) Tj
+/F1 10 Tf
+1 0 0 1 52 275 Tm
+(  - create payment pending) Tj
+/F1 10 Tf
+1 0 0 1 52 260 Tm
+(  - start Midtrans transaction) Tj
+/F2 11 Tf
+1 0 0 1 52 238 Tm
+(3. Controller Public Ordering) Tj
+/F1 10 Tf
+1 0 0 1 52 213 Tm
+(File terdampak:) Tj
+/F1 10 Tf
+1 0 0 1 52 191 Tm
+(- `app/Http/Controllers/PublicOrderingController.php`) Tj
+/F1 10 Tf
+1 0 0 1 52 169 Tm
+(Perubahan:) Tj
+/F1 10 Tf
+1 0 0 1 52 147 Tm
+(- Tombol submit tidak lagi sekadar membuat order dan redirect dengan flash message) Tj
+/F1 10 Tf
+1 0 0 1 52 132 Tm
+(- Setelah submit:) Tj
+/F1 10 Tf
+1 0 0 1 52 117 Tm
+(  - buat order `pending_payment`) Tj
+/F1 10 Tf
+1 0 0 1 52 102 Tm
+(  - buat payment `pending`) Tj
+/F1 10 Tf
+1 0 0 1 52 87 Tm
+(  - panggil Midtrans Snap) Tj
+/F1 10 Tf
+1 0 0 1 52 72 Tm
+(  - arahkan customer ke halaman pembayaran atau tampilkan Snap langsung) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Length 2585 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 52 782 Tm
+(Perlu route tambahan, misalnya:) Tj
+/F1 10 Tf
+1 0 0 1 52 760 Tm
+(- `/order/{slug}/payment/{order}`) Tj
+/F1 10 Tf
+1 0 0 1 52 745 Tm
+(- `/order/payment/{orderNumber}/status`) Tj
+/F2 11 Tf
+1 0 0 1 52 723 Tm
+(4. Midtrans Service) Tj
+/F1 10 Tf
+1 0 0 1 52 698 Tm
+(File terdampak:) Tj
+/F1 10 Tf
+1 0 0 1 52 676 Tm
+(- `app/Services/MidtransService.php`) Tj
+/F1 10 Tf
+1 0 0 1 52 654 Tm
+(Perubahan:) Tj
+/F1 10 Tf
+1 0 0 1 52 632 Tm
+(- Untuk order publik, data customer harus mengambil dari:) Tj
+/F1 10 Tf
+1 0 0 1 52 617 Tm
+(  - `guest_name`) Tj
+/F1 10 Tf
+1 0 0 1 52 602 Tm
+(  - `guest_phone`) Tj
+/F1 10 Tf
+1 0 0 1 52 587 Tm
+(- Jangan fallback ke creator kasir untuk public order) Tj
+/F1 10 Tf
+1 0 0 1 52 572 Tm
+(- Payload item detail tetap bisa memakai item order yang sudah ada) Tj
+/F2 11 Tf
+1 0 0 1 52 550 Tm
+(5. Midtrans Webhook) Tj
+/F1 10 Tf
+1 0 0 1 52 525 Tm
+(File terdampak:) Tj
+/F1 10 Tf
+1 0 0 1 52 503 Tm
+(- `app/Http/Controllers/MidtransWebhookController.php`) Tj
+/F1 10 Tf
+1 0 0 1 52 481 Tm
+(Perubahan:) Tj
+/F1 10 Tf
+1 0 0 1 52 459 Tm
+(- Jika order source `public_qr`:) Tj
+/F1 10 Tf
+1 0 0 1 52 444 Tm
+(  - payment `paid` -> order `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 429 Tm
+(  - payment `pending` -> order tetap `pending_payment`) Tj
+/F1 10 Tf
+1 0 0 1 52 414 Tm
+(  - payment `expire` -> order `expired`) Tj
+/F1 10 Tf
+1 0 0 1 52 399 Tm
+(  - payment `cancel` atau `deny` -> order `canceled` atau `failed`) Tj
+/F1 10 Tf
+1 0 0 1 52 384 Tm
+(- Jangan pakai rule lama `draft -> served` untuk order publik) Tj
+/F1 10 Tf
+1 0 0 1 52 362 Tm
+(Rekomendasi:) Tj
+/F1 10 Tf
+1 0 0 1 52 340 Tm
+(- Cabangkan logic webhook:) Tj
+/F1 10 Tf
+1 0 0 1 52 325 Tm
+(  - POS internal) Tj
+/F1 10 Tf
+1 0 0 1 52 310 Tm
+(  - public QR ordering) Tj
+/F2 11 Tf
+1 0 0 1 52 288 Tm
+(6. UI Customer) Tj
+/F1 10 Tf
+1 0 0 1 52 263 Tm
+(File terdampak:) Tj
+/F1 10 Tf
+1 0 0 1 52 241 Tm
+(- `resources/views/public/ordering/show.blade.php`) Tj
+/F1 10 Tf
+1 0 0 1 52 219 Tm
+(Perubahan:) Tj
+/F1 10 Tf
+1 0 0 1 52 197 Tm
+(- Ganti tombol `Kirim Pesanan` menjadi `Lanjut ke Pembayaran`) Tj
+/F1 10 Tf
+1 0 0 1 52 182 Tm
+(- Setelah submit, customer diarahkan ke halaman payment atau payment status) Tj
+/F1 10 Tf
+1 0 0 1 52 167 Tm
+(- Halaman payment perlu menampilkan:) Tj
+/F1 10 Tf
+1 0 0 1 52 152 Tm
+(  - nomor order) Tj
+/F1 10 Tf
+1 0 0 1 52 137 Tm
+(  - total pembayaran) Tj
+/F1 10 Tf
+1 0 0 1 52 122 Tm
+(  - status pembayaran) Tj
+/F1 10 Tf
+1 0 0 1 52 107 Tm
+(  - tombol bayar ulang jika masih pending) Tj
+/F1 10 Tf
+1 0 0 1 52 92 Tm
+(  - pesan jika transaksi expired) Tj
+/F2 11 Tf
+1 0 0 1 52 70 Tm
+(7. UI Internal) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Length 2707 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 52 782 Tm
+(File terdampak:) Tj
+/F1 10 Tf
+1 0 0 1 52 760 Tm
+(- `app/Filament/Resources/PublicOrders/...`) Tj
+/F1 10 Tf
+1 0 0 1 52 738 Tm
+(Perubahan:) Tj
+/F1 10 Tf
+1 0 0 1 52 716 Tm
+(- Hapus aksi `Konfirmasi` manual untuk alur lama) Tj
+/F1 10 Tf
+1 0 0 1 52 701 Tm
+(- Ganti dengan aksi operasional:) Tj
+/F1 10 Tf
+1 0 0 1 52 686 Tm
+(  - `Mulai Proses`) Tj
+/F1 10 Tf
+1 0 0 1 52 671 Tm
+(  - `Tandai Selesai`) Tj
+/F1 10 Tf
+1 0 0 1 52 656 Tm
+(  - `Batalkan`) Tj
+/F1 10 Tf
+1 0 0 1 52 641 Tm
+(- Tambahkan filter status yang jelas:) Tj
+/F1 10 Tf
+1 0 0 1 52 626 Tm
+(  - pending payment) Tj
+/F1 10 Tf
+1 0 0 1 52 611 Tm
+(  - paid) Tj
+/F1 10 Tf
+1 0 0 1 52 596 Tm
+(  - processing) Tj
+/F1 10 Tf
+1 0 0 1 52 581 Tm
+(  - served) Tj
+/F1 10 Tf
+1 0 0 1 52 566 Tm
+(  - expired) Tj
+/F1 10 Tf
+1 0 0 1 52 551 Tm
+(  - canceled) Tj
+/F2 11 Tf
+1 0 0 1 52 529 Tm
+(8. Monitoring dan Keamanan) Tj
+/F1 10 Tf
+1 0 0 1 52 504 Tm
+(Perlu dijaga:) Tj
+/F1 10 Tf
+1 0 0 1 52 482 Tm
+(- Order `pending_payment` tidak tampil sebagai order siap proses) Tj
+/F1 10 Tf
+1 0 0 1 52 467 Tm
+(- Customer tidak kehilangan akses ke halaman payment jika menutup browser) Tj
+/F1 10 Tf
+1 0 0 1 52 452 Tm
+(- Webhook Midtrans selalu bisa menemukan order dan payment terkait) Tj
+/F1 10 Tf
+1 0 0 1 52 437 Tm
+(- QR nonaktif tidak bisa dipakai) Tj
+/F1 10 Tf
+1 0 0 1 52 422 Tm
+(- Stok tetap divalidasi sebelum order dibuat) Tj
+/F2 13 Tf
+1 0 0 1 52 400 Tm
+(Rekomendasi Bisnis dan Operasional) Tj
+/F1 10 Tf
+1 0 0 1 52 373 Tm
+(Model terbaik untuk fitur ini adalah:) Tj
+/F1 10 Tf
+1 0 0 1 52 351 Tm
+(- `pay-first`) Tj
+/F1 10 Tf
+1 0 0 1 52 336 Tm
+(- order publik baru dianggap valid setelah pembayaran sukses) Tj
+/F1 10 Tf
+1 0 0 1 52 321 Tm
+(- outlet hanya memproses order yang statusnya `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 299 Tm
+(Keuntungan:) Tj
+/F1 10 Tf
+1 0 0 1 52 277 Tm
+(- antrean outlet tidak tercampur order yang belum bayar) Tj
+/F1 10 Tf
+1 0 0 1 52 262 Tm
+(- lebih cocok untuk pemesanan mandiri via QR) Tj
+/F1 10 Tf
+1 0 0 1 52 247 Tm
+(- minim kebingungan antara kasir dan customer) Tj
+/F1 10 Tf
+1 0 0 1 52 232 Tm
+(- memanfaatkan integrasi Midtrans yang sudah ada) Tj
+/F2 13 Tf
+1 0 0 1 52 210 Tm
+(Rencana Kerja) Tj
+/F2 11 Tf
+1 0 0 1 52 183 Tm
+(Fase 1: Rapikan status order dan payment) Tj
+/F1 10 Tf
+1 0 0 1 52 158 Tm
+(- Tambah konstanta status baru di model order) Tj
+/F1 10 Tf
+1 0 0 1 52 143 Tm
+(- Perbarui label status) Tj
+/F1 10 Tf
+1 0 0 1 52 128 Tm
+(- Pastikan flow POS internal tidak rusak) Tj
+/F1 10 Tf
+1 0 0 1 52 113 Tm
+(- Buat migration jika ada penyesuaian field tambahan) Tj
+/F2 11 Tf
+1 0 0 1 52 91 Tm
+(Fase 2: Refactor public ordering service) Tj
+/F1 10 Tf
+1 0 0 1 52 66 Tm
+(- Ubah order publik agar dibuat dengan status `pending_payment`) Tj
+ET
+endstream
+endobj
+8 0 obj
+<< /Length 2843 >>
+stream
+BT
+/F1 10 Tf
+1 0 0 1 52 782 Tm
+(- Buat payment `pending`) Tj
+/F1 10 Tf
+1 0 0 1 52 767 Tm
+(- Simpan relasi order dan payment Midtrans) Tj
+/F1 10 Tf
+1 0 0 1 52 752 Tm
+(- Siapkan generator Snap untuk public order) Tj
+/F2 11 Tf
+1 0 0 1 52 730 Tm
+(Fase 3: Tambah halaman pembayaran publik) Tj
+/F1 10 Tf
+1 0 0 1 52 705 Tm
+(- Buat halaman payment atau payment status) Tj
+/F1 10 Tf
+1 0 0 1 52 690 Tm
+(- Tampilkan Snap atau redirect URL Midtrans) Tj
+/F1 10 Tf
+1 0 0 1 52 675 Tm
+(- Tampilkan status pembayaran untuk customer) Tj
+/F1 10 Tf
+1 0 0 1 52 660 Tm
+(- Tampilkan aksi retry bila masih pending) Tj
+/F2 11 Tf
+1 0 0 1 52 638 Tm
+(Fase 4: Perbarui webhook Midtrans) Tj
+/F1 10 Tf
+1 0 0 1 52 613 Tm
+(- Cabangkan logic untuk `public_qr`) Tj
+/F1 10 Tf
+1 0 0 1 52 598 Tm
+(- Map status payment ke status order publik) Tj
+/F1 10 Tf
+1 0 0 1 52 583 Tm
+(- Cegah order publik langsung menjadi `served` saat payment sukses) Tj
+/F2 11 Tf
+1 0 0 1 52 561 Tm
+(Fase 5: Perbarui panel internal) Tj
+/F1 10 Tf
+1 0 0 1 52 536 Tm
+(- Ubah resource public order) Tj
+/F1 10 Tf
+1 0 0 1 52 521 Tm
+(- Hapus tombol konfirmasi manual) Tj
+/F1 10 Tf
+1 0 0 1 52 506 Tm
+(- Tambah aksi operasional:) Tj
+/F1 10 Tf
+1 0 0 1 52 491 Tm
+(  - mulai proses) Tj
+/F1 10 Tf
+1 0 0 1 52 476 Tm
+(  - tandai selesai) Tj
+/F1 10 Tf
+1 0 0 1 52 461 Tm
+(  - batalkan) Tj
+/F1 10 Tf
+1 0 0 1 52 446 Tm
+(- Tambah badge dan filter status) Tj
+/F2 11 Tf
+1 0 0 1 52 424 Tm
+(Fase 6: Perbarui UX customer) Tj
+/F1 10 Tf
+1 0 0 1 52 399 Tm
+(- Ganti CTA dari `Kirim Pesanan` menjadi `Lanjut ke Pembayaran`) Tj
+/F1 10 Tf
+1 0 0 1 52 384 Tm
+(- Tambah feedback yang jelas untuk:) Tj
+/F1 10 Tf
+1 0 0 1 52 369 Tm
+(  - pending payment) Tj
+/F1 10 Tf
+1 0 0 1 52 354 Tm
+(  - paid) Tj
+/F1 10 Tf
+1 0 0 1 52 339 Tm
+(  - expired) Tj
+/F1 10 Tf
+1 0 0 1 52 324 Tm
+(  - canceled) Tj
+/F2 11 Tf
+1 0 0 1 52 302 Tm
+(Fase 7: Testing) Tj
+/F1 10 Tf
+1 0 0 1 52 277 Tm
+(Tambahkan test untuk:) Tj
+/F1 10 Tf
+1 0 0 1 52 255 Tm
+(- pembuatan order publik dengan status `pending_payment`) Tj
+/F1 10 Tf
+1 0 0 1 52 240 Tm
+(- pembuatan payment pending) Tj
+/F1 10 Tf
+1 0 0 1 52 225 Tm
+(- payment Midtrans sukses mengubah order ke `paid`) Tj
+/F1 10 Tf
+1 0 0 1 52 210 Tm
+(- payment Midtrans expired mengubah order ke `expired`) Tj
+/F1 10 Tf
+1 0 0 1 52 195 Tm
+(- order `paid` bisa dipindah ke `processing`) Tj
+/F1 10 Tf
+1 0 0 1 52 180 Tm
+(- order `processing` bisa dipindah ke `served`) Tj
+/F1 10 Tf
+1 0 0 1 52 165 Tm
+(- customer tidak bisa order dari QR nonaktif) Tj
+/F2 13 Tf
+1 0 0 1 52 143 Tm
+(Urutan Implementasi yang Disarankan) Tj
+/F1 10 Tf
+1 0 0 1 52 116 Tm
+(1. Rapikan status order dan webhook) Tj
+/F1 10 Tf
+1 0 0 1 52 101 Tm
+(2. Refactor public ordering service) Tj
+/F1 10 Tf
+1 0 0 1 52 86 Tm
+(3. Tambah halaman payment publik) Tj
+/F1 10 Tf
+1 0 0 1 52 71 Tm
+(4. Perbarui resource internal) Tj
+/F1 10 Tf
+1 0 0 1 52 56 Tm
+(5. Tambah test otomatis) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Length 718 >>
+stream
+BT
+/F2 13 Tf
+1 0 0 1 52 782 Tm
+(Kesimpulan) Tj
+/F1 10 Tf
+1 0 0 1 52 755 Tm
+(Perbaikan terbaik untuk fitur QR public ordering adalah mengubah alurnya menjadi:) Tj
+/F1 10 Tf
+1 0 0 1 52 733 Tm
+(- customer pesan) Tj
+/F1 10 Tf
+1 0 0 1 52 718 Tm
+(- customer langsung lanjut bayar Midtrans) Tj
+/F1 10 Tf
+1 0 0 1 52 703 Tm
+(- payment sukses mengesahkan order) Tj
+/F1 10 Tf
+1 0 0 1 52 688 Tm
+(- outlet memproses order yang sudah dibayar) Tj
+/F1 10 Tf
+1 0 0 1 52 673 Tm
+(- order baru menjadi `served` saat benar-benar selesai) Tj
+/F1 10 Tf
+1 0 0 1 52 651 Tm
+(Pendekatan ini paling konsisten dengan kebutuhan self-ordering dan paling aman untuk ) Tj
+/F1 10 Tf
+1 0 0 1 52 636 Tm
+(menjaga kejelasan status pesanan di sistem.) Tj
+ET
+endstream
+endobj
+10 0 obj
+<< /Type /Pages /Kids [11 0 R 12 0 R 13 0 R 14 0 R 15 0 R 16 0 R 17 0 R] /Count 7 >>
+endobj
+11 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 3 0 R >>
+endobj
+12 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 4 0 R >>
+endobj
+13 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 5 0 R >>
+endobj
+14 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 6 0 R >>
+endobj
+15 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 7 0 R >>
+endobj
+16 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 8 0 R >>
+endobj
+17 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R /F2 2 0 R >> >> /Contents 9 0 R >>
+endobj
+18 0 obj
+<< /Type /Catalog /Pages 10 0 R >>
+endobj
+xref
+0 19
+0000000000 65535 f 
+0000000015 00000 n 
+0000000085 00000 n 
+0000000160 00000 n 
+0000003369 00000 n 
+0000006304 00000 n 
+0000009010 00000 n 
+0000011647 00000 n 
+0000014406 00000 n 
+0000017301 00000 n 
+0000018070 00000 n 
+0000018171 00000 n 
+0000018309 00000 n 
+0000018447 00000 n 
+0000018585 00000 n 
+0000018723 00000 n 
+0000018861 00000 n 
+0000018999 00000 n 
+0000019137 00000 n 
+trailer
+<< /Size 19 /Root 18 0 R >>
+startxref
+19188
+%%EOF

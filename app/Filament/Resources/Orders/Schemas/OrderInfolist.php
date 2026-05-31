@@ -24,24 +24,26 @@ class OrderInfolist
                             ->dateTime(),
                         TextEntry::make('order_type')
                             ->label('Tipe Order')
-                            ->formatStateUsing(static fn (string $state): string => match ($state) {
-                                Order::TYPE_DINE_IN => 'Dine In',
-                                Order::TYPE_TAKE_AWAY => 'Take Away',
-                                Order::TYPE_DELIVERY => 'Delivery',
-                                default => $state,
-                            }),
+                            ->formatStateUsing(static fn (string $state): string => Order::typeOptions()[$state] ?? $state),
                         TextEntry::make('status')
                             ->label('Status')
-                            ->formatStateUsing(static fn (string $state): string => match ($state) {
-                                Order::STATUS_DRAFT => 'Draf',
-                                Order::STATUS_SERVED => 'Selesai',
-                                Order::STATUS_CANCELED => 'Dibatalkan',
-                                default => $state,
-                            }),
+                            ->formatStateUsing(static fn (string $state): string => Order::statusOptions()[$state] ?? $state),
+                        TextEntry::make('order_source')
+                            ->label('Sumber Order')
+                            ->formatStateUsing(static fn (string $state): string => Order::sourceOptions()[$state] ?? $state),
                         TextEntry::make('customer_type')
                             ->label('Tipe Customer'),
                         TextEntry::make('customer.name')
                             ->label('Customer')
+                            ->placeholder('-'),
+                        TextEntry::make('guest_name')
+                            ->label('Nama Guest')
+                            ->placeholder('-'),
+                        TextEntry::make('guest_phone')
+                            ->label('Nomor HP Guest')
+                            ->placeholder('-'),
+                        TextEntry::make('orderingQr.name')
+                            ->label('QR Pemesanan')
                             ->placeholder('-'),
                         TextEntry::make('stockLocation.name')
                             ->label('Lokasi Stok')

@@ -17,6 +17,10 @@ class OrderItem extends Model
         'qty',
         'discount_amount',
         'total',
+        'net_sales_snapshot',
+        'cost_snapshot',
+        'gross_profit_snapshot',
+        'margin_percent_snapshot',
         'notes',
     ];
 
@@ -25,6 +29,10 @@ class OrderItem extends Model
         'qty' => 'decimal:3',
         'discount_amount' => 'decimal:2',
         'total' => 'decimal:2',
+        'net_sales_snapshot' => 'decimal:2',
+        'cost_snapshot' => 'decimal:2',
+        'gross_profit_snapshot' => 'decimal:2',
+        'margin_percent_snapshot' => 'decimal:2',
     ];
 
     protected static function booted(): void

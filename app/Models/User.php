@@ -51,4 +51,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Attendance::class);
     }
+
+    public function cashierSessions()
+    {
+        return $this->hasMany(CashierSession::class);
+    }
 }

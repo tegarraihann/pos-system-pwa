@@ -2,11 +2,20 @@
 
 use App\Http\Controllers\MidtransWebhookController;
 use App\Http\Controllers\OfflineOrderSyncController;
+use App\Http\Controllers\PublicOrderingController;
 use App\Http\Controllers\QzTraySigningController;
+use App\Http\Controllers\ReportPdfController;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/admin/login');
+
+Route::get('/order/{orderingQr:slug}', [PublicOrderingController::class, 'show'])
+    ->name('public-ordering.show');
+Route::post('/order/{orderingQr:slug}', [PublicOrderingController::class, 'store'])
+    ->name('public-ordering.store');
+Route::get('/order/{orderingQr:slug}/payment/{orderNumber}', [PublicOrderingController::class, 'payment'])
+    ->name('public-ordering.payment');
 
 Route::post('/midtrans/notification', [MidtransWebhookController::class, 'handle'])
     ->withoutMiddleware([VerifyCsrfToken::class]);
@@ -18,4 +27,6 @@ Route::post('/api/offline/sync-order', [OfflineOrderSyncController::class, 'stor
 Route::middleware('auth')->group(function (): void {
     Route::get('/api/qz-tray/certificate', [QzTraySigningController::class, 'certificate']);
     Route::post('/api/qz-tray/sign', [QzTraySigningController::class, 'sign']);
+    Route::get('/admin/reports/{report}/download', ReportPdfController::class)
+        ->name('reports.download');
 });

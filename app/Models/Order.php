@@ -9,8 +9,14 @@ class Order extends Model
 {
     use HasFactory;
 
+    public const STATUS_PENDING_PAYMENT = 'pending_payment';
+    public const STATUS_PENDING_CONFIRMATION = 'pending_confirmation';
+    public const STATUS_PAID = 'paid';
+    public const STATUS_PROCESSING = 'processing';
     public const STATUS_DRAFT = 'draft';
     public const STATUS_SERVED = 'served';
+    public const STATUS_EXPIRED = 'expired';
+    public const STATUS_FAILED = 'failed';
     public const STATUS_CANCELED = 'canceled';
 
     public const TYPE_DINE_IN = 'dine_in';
@@ -23,6 +29,9 @@ class Order extends Model
     public const PAYMENT_CASH = 'cash';
     public const PAYMENT_MIDTRANS = 'midtrans';
 
+    public const SOURCE_POS = 'pos';
+    public const SOURCE_PUBLIC_QR = 'public_qr';
+
     public const SYNC_STATUS_SYNCED = 'synced';
     public const SYNC_STATUS_PENDING = 'pending_sync';
     public const SYNC_STATUS_FAILED = 'failed_sync';
@@ -33,7 +42,11 @@ class Order extends Model
         'order_type',
         'status',
         'customer_type',
+        'order_source',
         'customer_id',
+        'ordering_qr_id',
+        'guest_name',
+        'guest_phone',
         'payment_method',
         'sync_status',
         'client_txn_id',
@@ -51,9 +64,13 @@ class Order extends Model
         'service_total',
         'grand_total',
         'paid_total',
+        'cogs_total',
+        'gross_profit_total',
+        'cost_accounted_at',
         'cancel_reason',
         'canceled_at',
         'created_by',
+        'cashier_session_id',
     ];
 
     protected $casts = [
@@ -67,6 +84,9 @@ class Order extends Model
         'service_total' => 'decimal:2',
         'grand_total' => 'decimal:2',
         'paid_total' => 'decimal:2',
+        'cogs_total' => 'decimal:2',
+        'gross_profit_total' => 'decimal:2',
+        'cost_accounted_at' => 'datetime',
         'synced_at' => 'datetime',
     ];
 
@@ -79,6 +99,10 @@ class Order extends Model
 
             if (! $order->ordered_at) {
                 $order->ordered_at = now();
+            }
+
+            if (! $order->order_source) {
+                $order->order_source = self::SOURCE_POS;
             }
         });
 
@@ -108,9 +132,54 @@ class Order extends Model
         return $prefix . $sequence;
     }
 
+    public static function statusOptions(): array
+    {
+        return [
+            self::STATUS_PENDING_PAYMENT => 'Menunggu Pembayaran',
+            self::STATUS_PENDING_CONFIRMATION => 'Menunggu Konfirmasi',
+            self::STATUS_PAID => 'Sudah Dibayar',
+            self::STATUS_PROCESSING => 'Sedang Diproses',
+            self::STATUS_DRAFT => 'Draf',
+            self::STATUS_SERVED => 'Selesai',
+            self::STATUS_EXPIRED => 'Kadaluarsa',
+            self::STATUS_FAILED => 'Gagal',
+            self::STATUS_CANCELED => 'Dibatalkan',
+        ];
+    }
+
+    public static function typeOptions(): array
+    {
+        return [
+            self::TYPE_DINE_IN => 'Dine In',
+            self::TYPE_TAKE_AWAY => 'Take Away',
+            self::TYPE_DELIVERY => 'Delivery',
+        ];
+    }
+
+    public static function customerTypeOptions(): array
+    {
+        return [
+            self::CUSTOMER_WALK_IN => 'Walk In',
+            self::CUSTOMER_MEMBER => 'Member',
+        ];
+    }
+
+    public static function sourceOptions(): array
+    {
+        return [
+            self::SOURCE_POS => 'POS Internal',
+            self::SOURCE_PUBLIC_QR => 'QR Publik',
+        ];
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    public function orderingQr()
+    {
+        return $this->belongsTo(OrderingQr::class);
     }
 
     public function stockLocation()
@@ -131,6 +200,16 @@ class Order extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function cashierSession()
+    {
+        return $this->belongsTo(CashierSession::class);
+    }
+
+    public function isPublicQr(): bool
+    {
+        return $this->order_source === self::SOURCE_PUBLIC_QR;
     }
 
     public function recalculateTotals(): void

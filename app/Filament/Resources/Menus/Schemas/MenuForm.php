@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Menus\Schemas;
 
-use App\Models\Menu;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
@@ -21,12 +20,6 @@ class MenuForm
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        TextInput::make('code')
-                            ->label('Kode Menu/SKU')
-                            ->required()
-                            ->maxLength(50)
-                            ->unique(Menu::class, 'code', ignoreRecord: true)
-                            ->placeholder('Contoh: AMR-001'),
                         TextInput::make('name')
                             ->label('Nama Menu')
                             ->required()

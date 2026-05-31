@@ -11,15 +11,16 @@ use Illuminate\Auth\Access\HandlesAuthorization;
 class OrderPolicy
 {
     use HandlesAuthorization;
-    
+
     public function viewAny(AuthUser $authUser): bool
     {
-        return $authUser->can('ViewAny:Order');
+        return $authUser->can('ViewAny:Order') || $authUser->can('ViewAny:PublicOrder');
     }
 
     public function view(AuthUser $authUser, Order $order): bool
     {
-        return $authUser->can('View:Order');
+        return $authUser->can('View:Order')
+            || ($order->order_source === Order::SOURCE_PUBLIC_QR && $authUser->can('View:PublicOrder'));
     }
 
     public function create(AuthUser $authUser): bool
@@ -29,7 +30,8 @@ class OrderPolicy
 
     public function update(AuthUser $authUser, Order $order): bool
     {
-        return $authUser->can('Update:Order');
+        return $authUser->can('Update:Order')
+            || ($order->order_source === Order::SOURCE_PUBLIC_QR && $authUser->can('Process:PublicOrder'));
     }
 
     public function delete(AuthUser $authUser, Order $order): bool

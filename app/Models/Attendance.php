@@ -41,5 +41,9 @@ class Attendance extends Model
     {
         return $this->belongsTo(User::class);
     }
-}
 
+    public function cashierSessions()
+    {
+        return $this->hasMany(CashierSession::class);
+    }
+}

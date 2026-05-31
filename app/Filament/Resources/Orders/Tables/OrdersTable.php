@@ -8,6 +8,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class OrdersTable
@@ -15,6 +16,7 @@ class OrdersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('ordered_at', 'desc')
             ->columns([
                 TextColumn::make('order_number')
                     ->label('Nomor')
@@ -26,24 +28,22 @@ class OrdersTable
                     ->sortable(),
                 TextColumn::make('order_type')
                     ->label('Tipe')
-                    ->formatStateUsing(static fn (string $state): string => match ($state) {
-                        Order::TYPE_DINE_IN => 'Dine In',
-                        Order::TYPE_TAKE_AWAY => 'Take Away',
-                        Order::TYPE_DELIVERY => 'Delivery',
-                        default => $state,
-                    }),
+                    ->formatStateUsing(static fn (string $state): string => Order::typeOptions()[$state] ?? $state),
                 TextColumn::make('status')
                     ->label('Status')
                     ->badge()
-                    ->formatStateUsing(static fn (string $state): string => match ($state) {
-                        Order::STATUS_DRAFT => 'Draf',
-                        Order::STATUS_SERVED => 'Selesai',
-                        Order::STATUS_CANCELED => 'Dibatalkan',
-                        default => $state,
-                    }),
+                    ->formatStateUsing(static fn (string $state): string => Order::statusOptions()[$state] ?? $state),
+                TextColumn::make('order_source')
+                    ->label('Sumber')
+                    ->badge()
+                    ->formatStateUsing(static fn (string $state): string => Order::sourceOptions()[$state] ?? $state),
                 TextColumn::make('customer.name')
                     ->label('Customer')
                     ->placeholder('-'),
+                TextColumn::make('guest_name')
+                    ->label('Guest')
+                    ->placeholder('-')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('stockLocation.name')
                     ->label('Lokasi')
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -63,11 +63,17 @@ class OrdersTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')
+                    ->label('Status')
+                    ->options(Order::statusOptions()),
+                SelectFilter::make('order_source')
+                    ->label('Sumber')
+                    ->options(Order::sourceOptions()),
             ])
             ->recordActions([
                 ViewAction::make(),
-                EditAction::make(),
+                EditAction::make()
+                    ->visible(fn ($record): bool => $record->order_source !== Order::SOURCE_PUBLIC_QR),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([

@@ -95,6 +95,7 @@ class StockLevel extends Model
         });
 
         static::syncMenuVariantStock();
+        static::syncMenuVariantActiveStatus();
     }
 
     protected static function getMovementDeltas(StockMovement $movement, StockMovementItem $item): array
@@ -140,5 +141,29 @@ class StockLevel extends Model
                 ->whereKey($itemId)
                 ->update(['stock' => (int) round($total)]);
         }
+    }
+
+    protected static function syncMenuVariantActiveStatus(): void
+    {
+        MenuVariant::query()
+            ->with('menu:id,is_stock_managed')
+            ->select(['id', 'menu_id', 'stock', 'is_active'])
+            ->chunkById(200, function ($variants): void {
+                foreach ($variants as $variant) {
+                    if (! $variant->menu?->is_stock_managed) {
+                        continue;
+                    }
+
+                    $shouldBeActive = max((int) ($variant->stock ?? 0), 0) > 0;
+
+                    if ((bool) $variant->is_active === $shouldBeActive) {
+                        continue;
+                    }
+
+                    MenuVariant::query()
+                        ->whereKey($variant->id)
+                        ->update(['is_active' => $shouldBeActive]);
+                }
+            });
     }
 }

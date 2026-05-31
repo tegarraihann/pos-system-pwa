@@ -590,6 +590,60 @@
                 </div>
             </div>
 
+            <div class="pos-attendance-panel">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: .55rem; flex-wrap: wrap;">
+                        <span class="pos-attendance-status {{ $hasOpenCashSession ? 'checked-in' : 'not-checked' }}">
+                            <span class="dot"></span>
+                            {{ $hasOpenCashSession ? 'Sesi Kas Aktif' : 'Sesi Kas Belum Dibuka' }}
+                        </span>
+                        @if ($cashSessionOpenedAt)
+                            <span style="font-size: .78rem; color: var(--gray-500);">
+                                Dibuka: {{ $cashSessionOpenedAt }}
+                            </span>
+                        @endif
+                    </div>
+                    <span style="font-size: .78rem; color: var(--gray-500);">
+                        Kas sistem: <strong style="color: var(--gray-700);">Rp {{ number_format((float) ($cashSessionExpectedCash ?? 0), 0, ',', '.') }}</strong>
+                    </span>
+                </div>
+                <div style="margin-top: .75rem; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem;">
+                    <div style="padding: .8rem .9rem; border: 1px solid #e5e7eb; border-radius: .85rem; background: #ffffff;">
+                        <div style="font-size: .72rem; color: #6b7280;">Modal Awal</div>
+                        <div style="margin-top: .2rem; font-size: 1rem; font-weight: 700; color: #111827;">
+                            Rp {{ number_format((float) ($cashSessionOpeningCash ?? 0), 0, ',', '.') }}
+                        </div>
+                    </div>
+                    <div style="padding: .8rem .9rem; border: 1px solid #e5e7eb; border-radius: .85rem; background: #ffffff;">
+                        <div style="font-size: .72rem; color: #6b7280;">Transaksi Tunai + Modal</div>
+                        <div style="margin-top: .2rem; font-size: 1rem; font-weight: 700; color: #111827;">
+                            Rp {{ number_format((float) ($cashSessionExpectedCash ?? 0), 0, ',', '.') }}
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: .45rem; font-size: .75rem; color: var(--gray-500);">
+                    Sesi kas dibutuhkan untuk menghitung modal awal dan rekonsiliasi uang tunai saat tutup shift.
+                </div>
+                <div class="pos-attendance-actions">
+                    <button
+                        type="button"
+                        wire:click="openCashSessionModal"
+                        class="pos-attendance-btn"
+                        @disabled($hasOpenCashSession || ! $isCheckedIn)
+                    >
+                        Buka Sesi Kas
+                    </button>
+                    <button
+                        type="button"
+                        wire:click="openCloseCashSessionModal"
+                        class="pos-attendance-btn"
+                        @disabled(! $hasOpenCashSession)
+                    >
+                        Tutup Sesi Kas
+                    </button>
+                </div>
+            </div>
+
             {{-- Product Grid --}}
             <div class="pos-products-grid">
                 @forelse ($this->menuVariants as $variant)
@@ -809,6 +863,120 @@
             </div>
         </div>
     </div>
+
+    @if ($showOpenCashSessionModal)
+        <div
+            style="position: fixed; inset: 0; z-index: 10001; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 1rem;"
+            wire:click.self="closeOpenCashSessionModal"
+        >
+            <div style="width: min(32rem, 100%); border-radius: 1rem; overflow: hidden;" class="pos-payment-modal">
+                <div style="padding: 1rem 1.25rem;" class="pos-payment-modal-header">
+                    <h3 style="font-size: 1.125rem; font-weight: 700;" class="pos-payment-title">Buka Sesi Kas</h3>
+                    <p style="font-size: 0.875rem; margin-top: 0.25rem;" class="pos-payment-muted">
+                        Isi modal awal kasir sebelum mulai memproses transaksi.
+                    </p>
+                </div>
+                <div style="padding: 1rem 1.25rem;">
+                    <div style="padding: .85rem 1rem; border: 1px solid #dbeafe; border-radius: .85rem; background: #eff6ff; margin-bottom: 1rem;">
+                        <div style="font-size: .78rem; color: #1d4ed8;">Status absensi</div>
+                        <div style="margin-top: .15rem; font-weight: 700; color: #1e3a8a;">
+                            {{ $isCheckedIn ? 'Check-in aktif' : 'Belum check-in' }}
+                        </div>
+                    </div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #111827; margin-bottom: .4rem;">
+                        Modal Awal
+                    </label>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        wire:model.live="cashSessionOpeningAmountInput"
+                        class="pos-payment-input"
+                        style="width: 100%; padding: .7rem .85rem; border-radius: .75rem;"
+                        placeholder="0"
+                    />
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #111827; margin: 1rem 0 .4rem;">
+                        Catatan
+                    </label>
+                    <textarea
+                        wire:model="cashSessionOpeningNotesInput"
+                        class="pos-payment-input"
+                        style="width: 100%; min-height: 6rem; padding: .7rem .85rem; border-radius: .75rem;"
+                        placeholder="Opsional"
+                    ></textarea>
+                </div>
+                <div style="padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.5rem;" class="pos-payment-modal-footer">
+                    <x-filament::button color="gray" wire:click="closeOpenCashSessionModal">
+                        Batal
+                    </x-filament::button>
+                    <x-filament::button color="primary" wire:click="confirmOpenCashSession">
+                        Simpan Modal Awal
+                    </x-filament::button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($showCloseCashSessionModal)
+        <div
+            style="position: fixed; inset: 0; z-index: 10000; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 1rem;"
+            wire:click.self="closeCashSessionModal"
+        >
+            <div style="width: min(34rem, 100%); border-radius: 1rem; overflow: hidden;" class="pos-payment-modal">
+                <div style="padding: 1rem 1.25rem;" class="pos-payment-modal-header">
+                    <h3 style="font-size: 1.125rem; font-weight: 700;" class="pos-payment-title">Tutup Sesi Kas</h3>
+                    <p style="font-size: 0.875rem; margin-top: 0.25rem;" class="pos-payment-muted">
+                        Cocokkan uang aktual dengan hitungan sistem sebelum check-out.
+                    </p>
+                </div>
+                <div style="padding: 1rem 1.25rem;">
+                    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin-bottom: 1rem;">
+                        <div style="padding: .85rem 1rem; border: 1px solid #d1d5db; border-radius: .85rem; background: #f9fafb;">
+                            <div style="font-size: .78rem; color: #6b7280;">Kas Sistem</div>
+                            <div style="margin-top: .15rem; font-weight: 700; color: #111827;">
+                                Rp {{ number_format((float) ($cashSessionExpectedCash ?? 0), 0, ',', '.') }}
+                            </div>
+                        </div>
+                        <div style="padding: .85rem 1rem; border: 1px solid #d1d5db; border-radius: .85rem; background: #f9fafb;">
+                            <div style="font-size: .78rem; color: #6b7280;">Preview Selisih</div>
+                            <div style="margin-top: .15rem; font-weight: 700; color: #111827;">
+                                Rp {{ number_format((float) $this->cashSessionDifferencePreview, 0, ',', '.') }}
+                            </div>
+                        </div>
+                    </div>
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #111827; margin-bottom: .4rem;">
+                        Uang Aktual
+                    </label>
+                    <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        wire:model.live="cashSessionClosingActualInput"
+                        class="pos-payment-input"
+                        style="width: 100%; padding: .7rem .85rem; border-radius: .75rem;"
+                        placeholder="0"
+                    />
+                    <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #111827; margin: 1rem 0 .4rem;">
+                        Catatan Penutupan
+                    </label>
+                    <textarea
+                        wire:model="cashSessionClosingNotesInput"
+                        class="pos-payment-input"
+                        style="width: 100%; min-height: 6rem; padding: .7rem .85rem; border-radius: .75rem;"
+                        placeholder="Opsional"
+                    ></textarea>
+                </div>
+                <div style="padding: 1rem 1.25rem; display: flex; justify-content: flex-end; gap: 0.5rem;" class="pos-payment-modal-footer">
+                    <x-filament::button color="gray" wire:click="closeCashSessionModal">
+                        Batal
+                    </x-filament::button>
+                    <x-filament::button color="primary" wire:click="confirmCloseCashSession">
+                        Tutup Sesi
+                    </x-filament::button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     @if ($showPaymentModal)
         <div

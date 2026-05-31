@@ -9,7 +9,9 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\StockLocation;
 use App\Services\AttendanceService;
+use App\Services\CashierSessionService;
 use App\Services\MidtransService;
+use App\Services\OrderAccountingService;
 use BackedEnum;
 use DomainException;
 use Filament\Notifications\Notification;
@@ -46,6 +48,17 @@ class PosCashier extends Page
     public ?string $attendanceDeviceId = null;
     public ?float $attendanceLatitude = null;
     public ?float $attendanceLongitude = null;
+    public bool $hasOpenCashSession = false;
+    public ?int $activeCashSessionId = null;
+    public ?string $cashSessionOpenedAt = null;
+    public ?float $cashSessionOpeningCash = null;
+    public ?float $cashSessionExpectedCash = null;
+    public bool $showOpenCashSessionModal = false;
+    public bool $showCloseCashSessionModal = false;
+    public ?string $cashSessionOpeningAmountInput = null;
+    public ?string $cashSessionOpeningNotesInput = null;
+    public ?string $cashSessionClosingActualInput = null;
+    public ?string $cashSessionClosingNotesInput = null;
     public ?int $activeMidtransOrderId = null;
     public ?int $activeMidtransPaymentId = null;
     public ?string $activeMidtransGatewayRef = null;
@@ -68,6 +81,7 @@ class PosCashier extends Page
     public function mount(): void
     {
         $this->refreshAttendanceState();
+        $this->refreshCashSessionState();
     }
 
     public static function canAccess(): bool
@@ -285,6 +299,10 @@ class PosCashier extends Page
             return;
         }
 
+        if (! $this->ensureCashSessionOpen()) {
+            return;
+        }
+
         if (! $this->ensureCartNotEmpty()) {
             return;
         }
@@ -320,6 +338,10 @@ class PosCashier extends Page
     public function processPayment(): void
     {
         if (! $this->ensureCashierCheckedIn()) {
+            return;
+        }
+
+        if (! $this->ensureCashSessionOpen()) {
             return;
         }
 
@@ -361,6 +383,208 @@ class PosCashier extends Page
     public function checkout(): void
     {
         $this->openPaymentModal();
+    }
+
+    public function openCashSessionModal(): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->cannot('Open:CashierSession')) {
+            Notification::make()
+                ->title('Akses sesi kas ditolak')
+                ->body('Akun ini tidak memiliki izin membuka sesi kas.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        if (! $this->ensureCashierCheckedIn()) {
+            return;
+        }
+
+        $this->refreshCashSessionState();
+
+        if ($this->hasOpenCashSession) {
+            Notification::make()
+                ->title('Sesi kas sudah aktif')
+                ->body('Tutup sesi kas aktif terlebih dahulu sebelum membuka sesi baru.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $this->cashSessionOpeningAmountInput = $this->cashSessionOpeningAmountInput ?? '0';
+        $this->cashSessionOpeningNotesInput = null;
+        $this->showOpenCashSessionModal = true;
+    }
+
+    public function closeOpenCashSessionModal(): void
+    {
+        $this->showOpenCashSessionModal = false;
+        $this->cashSessionOpeningAmountInput = null;
+        $this->cashSessionOpeningNotesInput = null;
+    }
+
+    public function confirmOpenCashSession(): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->cannot('Open:CashierSession')) {
+            Notification::make()
+                ->title('Akses sesi kas ditolak')
+                ->body('Akun ini tidak memiliki izin membuka sesi kas.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        if (! $this->ensureCashierCheckedIn()) {
+            return;
+        }
+
+        $attendance = app(AttendanceService::class)->getActiveAttendance($user);
+
+        if (! $attendance) {
+            Notification::make()
+                ->title('Check-in belum aktif')
+                ->body('Silakan check-in terlebih dahulu sebelum membuka sesi kas.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        try {
+            app(CashierSessionService::class)->openSession(
+                $user,
+                $attendance,
+                (string) ($this->attendanceDeviceId ?? ''),
+                $this->resolvedOpeningCashAmount(),
+                $this->cashSessionOpeningNotesInput
+            );
+        } catch (DomainException $exception) {
+            Notification::make()
+                ->title('Gagal membuka sesi kas')
+                ->body($exception->getMessage())
+                ->warning()
+                ->send();
+
+            return;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            Notification::make()
+                ->title('Terjadi kendala sesi kas')
+                ->body('Silakan coba lagi beberapa saat lagi.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $this->closeOpenCashSessionModal();
+        $this->refreshCashSessionState();
+
+        Notification::make()
+            ->title('Sesi kas dibuka')
+            ->body('Modal awal berhasil disimpan dan sesi kas siap digunakan.')
+            ->success()
+            ->send();
+    }
+
+    public function openCloseCashSessionModal(): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->cannot('Close:CashierSession')) {
+            Notification::make()
+                ->title('Akses sesi kas ditolak')
+                ->body('Akun ini tidak memiliki izin menutup sesi kas.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $this->refreshCashSessionState();
+
+        if (! $this->hasOpenCashSession) {
+            Notification::make()
+                ->title('Tidak ada sesi kas aktif')
+                ->body('Buka sesi kas terlebih dahulu.')
+                ->warning()
+                ->send();
+
+            return;
+        }
+
+        $this->cashSessionClosingActualInput = (string) round((float) ($this->cashSessionExpectedCash ?? 0), 0);
+        $this->cashSessionClosingNotesInput = null;
+        $this->showCloseCashSessionModal = true;
+    }
+
+    public function closeCashSessionModal(): void
+    {
+        $this->showCloseCashSessionModal = false;
+        $this->cashSessionClosingActualInput = null;
+        $this->cashSessionClosingNotesInput = null;
+    }
+
+    public function confirmCloseCashSession(): void
+    {
+        $user = auth()->user();
+
+        if (! $user || $user->cannot('Close:CashierSession')) {
+            Notification::make()
+                ->title('Akses sesi kas ditolak')
+                ->body('Akun ini tidak memiliki izin menutup sesi kas.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        try {
+            $session = app(CashierSessionService::class)->closeSession(
+                $user,
+                $this->resolvedClosingActualCashAmount(),
+                $this->cashSessionClosingNotesInput
+            );
+        } catch (DomainException $exception) {
+            Notification::make()
+                ->title('Gagal menutup sesi kas')
+                ->body($exception->getMessage())
+                ->warning()
+                ->send();
+
+            return;
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            Notification::make()
+                ->title('Terjadi kendala sesi kas')
+                ->body('Silakan coba lagi beberapa saat lagi.')
+                ->danger()
+                ->send();
+
+            return;
+        }
+
+        $this->closeCashSessionModal();
+        $this->refreshCashSessionState();
+
+        Notification::make()
+            ->title('Sesi kas ditutup')
+            ->body(
+                'Kas sistem: Rp ' . number_format((float) $session->expected_cash, 0, ',', '.')
+                . ' | Kas aktual: Rp ' . number_format((float) $session->actual_cash, 0, ',', '.')
+                . ' | Selisih: Rp ' . number_format((float) $session->difference_amount, 0, ',', '.')
+            )
+            ->success()
+            ->send();
     }
 
     #[On('attendance-context-updated')]
@@ -410,6 +634,24 @@ class PosCashier extends Page
                 ->send();
 
             return;
+        }
+
+        if ($normalizedAction === 'check_out') {
+            $this->refreshCashSessionState();
+
+            if ($this->hasOpenCashSession) {
+                Notification::make()
+                    ->title('Sesi kas masih terbuka')
+                    ->body('Tutup sesi kas dan input hitungan uang sebelum check-out absensi.')
+                    ->warning()
+                    ->send();
+
+                if ($user->can('Close:CashierSession')) {
+                    $this->openCloseCashSessionModal();
+                }
+
+                return;
+            }
         }
 
         if ($normalizedDeviceId === '') {
@@ -486,6 +728,7 @@ class PosCashier extends Page
     {
         $grandTotal = (float) $this->cartGrandTotal;
         $paidAmount = $this->resolvedCashPaidAmount();
+        $cashierSessionId = $this->activeCashSessionId;
 
         if ($paidAmount < $grandTotal) {
             Notification::make()
@@ -497,20 +740,24 @@ class PosCashier extends Page
         }
 
         try {
-            [$order, $payment] = DB::transaction(function () use ($grandTotal): array {
+            [$order, $payment] = DB::transaction(function () use ($cashierSessionId, $grandTotal): array {
                 $order = $this->createOrderFromCart([
-                    'status' => Order::STATUS_SERVED,
+                    'status' => Order::STATUS_DRAFT,
                     'payment_method' => Order::PAYMENT_CASH,
                     'sync_status' => Order::SYNC_STATUS_SYNCED,
                     'synced_at' => now(),
+                    'cashier_session_id' => $cashierSessionId,
                 ]);
 
                 $payment = $order->payments()->create([
+                    'cashier_session_id' => $cashierSessionId,
                     'method' => Order::PAYMENT_CASH,
                     'amount' => $grandTotal,
                     'status' => 'paid',
                     'paid_at' => now(),
                 ]);
+
+                $order = app(OrderAccountingService::class)->markAsServed($order);
 
                 return [$order, $payment];
             });
@@ -525,10 +772,15 @@ class PosCashier extends Page
             return;
         }
 
+        if ($payment->cashierSession) {
+            app(CashierSessionService::class)->syncExpectedCash($payment->cashierSession);
+        }
+
         $change = max($paidAmount - $grandTotal, 0);
         $this->cart = [];
         $this->selectedCustomerId = null;
         $this->closePaymentModal();
+        $this->refreshCashSessionState();
         $this->receiptData = $this->buildReceiptData($order->fresh('items.menuVariant.menu', 'payments', 'creator'), $payment->fresh(), $paidAmount);
         $this->showReceiptModal = true;
 
@@ -566,9 +818,11 @@ class PosCashier extends Page
                     'payment_method' => Order::PAYMENT_MIDTRANS,
                     'sync_status' => Order::SYNC_STATUS_SYNCED,
                     'synced_at' => now(),
+                    'cashier_session_id' => $this->activeCashSessionId,
                 ]);
 
                 $payment = $order->payments()->create([
+                    'cashier_session_id' => $this->activeCashSessionId,
                     'method' => 'midtrans_snap',
                     'amount' => (float) $order->grand_total,
                     'status' => 'pending',
@@ -841,6 +1095,11 @@ class PosCashier extends Page
         return false;
     }
 
+    public function getCashSessionDifferencePreviewProperty(): float
+    {
+        return round($this->resolvedClosingActualCashAmount() - (float) ($this->cashSessionExpectedCash ?? 0), 2);
+    }
+
     protected function ensureCartNotEmpty(): bool
     {
         if (! empty($this->cart)) {
@@ -877,6 +1136,32 @@ class PosCashier extends Page
         return false;
     }
 
+    protected function ensureCashSessionOpen(): bool
+    {
+        if ($this->hasOpenCashSession) {
+            return true;
+        }
+
+        $this->refreshCashSessionState();
+
+        if ($this->hasOpenCashSession) {
+            return true;
+        }
+
+        Notification::make()
+            ->title('Sesi kas belum dibuka')
+            ->body('Silakan buka sesi kas dan isi modal awal sebelum memproses transaksi.')
+            ->warning()
+            ->send();
+
+        if (auth()->user()?->can('Open:CashierSession')) {
+            $this->showOpenCashSessionModal = true;
+            $this->cashSessionOpeningAmountInput = $this->cashSessionOpeningAmountInput ?? '0';
+        }
+
+        return false;
+    }
+
     protected function refreshAttendanceState(): void
     {
         $user = auth()->user();
@@ -906,6 +1191,41 @@ class PosCashier extends Page
         }
 
         $this->attendanceWorkedMinutesToday = (int) $workedMinutesToday;
+    }
+
+    protected function refreshCashSessionState(): void
+    {
+        $user = auth()->user();
+
+        if (! $user) {
+            $this->hasOpenCashSession = false;
+            $this->activeCashSessionId = null;
+            $this->cashSessionOpenedAt = null;
+            $this->cashSessionOpeningCash = null;
+            $this->cashSessionExpectedCash = null;
+
+            return;
+        }
+
+        $activeSession = app(CashierSessionService::class)->getActiveSession($user);
+
+        if (! $activeSession) {
+            $this->hasOpenCashSession = false;
+            $this->activeCashSessionId = null;
+            $this->cashSessionOpenedAt = null;
+            $this->cashSessionOpeningCash = null;
+            $this->cashSessionExpectedCash = null;
+
+            return;
+        }
+
+        $activeSession = app(CashierSessionService::class)->syncExpectedCash($activeSession);
+
+        $this->hasOpenCashSession = true;
+        $this->activeCashSessionId = $activeSession->id;
+        $this->cashSessionOpenedAt = $activeSession->opened_at?->format('d/m/Y H:i');
+        $this->cashSessionOpeningCash = (float) $activeSession->opening_cash;
+        $this->cashSessionExpectedCash = (float) $activeSession->expected_cash;
     }
 
     protected function ensureCartStockAvailable(): bool
@@ -957,6 +1277,24 @@ class PosCashier extends Page
         }
 
         return max((float) $this->cashPaidAmount, 0);
+    }
+
+    protected function resolvedOpeningCashAmount(): float
+    {
+        if (blank($this->cashSessionOpeningAmountInput)) {
+            return 0.0;
+        }
+
+        return max((float) $this->cashSessionOpeningAmountInput, 0);
+    }
+
+    protected function resolvedClosingActualCashAmount(): float
+    {
+        if (blank($this->cashSessionClosingActualInput)) {
+            return 0.0;
+        }
+
+        return max((float) $this->cashSessionClosingActualInput, 0);
     }
 
     protected function createOrderFromCart(array $orderAttributes): Order
@@ -1169,11 +1507,13 @@ class PosCashier extends Page
                 'sync_error' => null,
             ];
 
-            if ($paymentStatus === 'paid' && $order->status === Order::STATUS_DRAFT) {
-                $orderUpdate['status'] = Order::STATUS_SERVED;
-            }
+            $shouldServeOrder = $paymentStatus === 'paid' && $order->status === Order::STATUS_DRAFT;
 
             $order->update($orderUpdate);
+
+            if ($shouldServeOrder) {
+                app(OrderAccountingService::class)->markAsServed($order);
+            }
         }
 
         return $paymentStatus;

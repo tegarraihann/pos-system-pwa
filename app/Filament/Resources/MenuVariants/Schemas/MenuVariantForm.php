@@ -54,18 +54,21 @@ class MenuVariantForm
                     ->columnSpanFull()
                     ->columns(1)
                     ->schema([
-                        TextInput::make('temperature')
+                        Select::make('temperature')
                             ->label('Suhu')
-                            ->maxLength(50)
-                            ->placeholder('Contoh: Panas / Dingin'),
-                        TextInput::make('sugar_level')
+                            ->options(MenuVariant::temperatureOptions())
+                            ->placeholder('Pilih suhu')
+                            ->native(false),
+                        Select::make('sugar_level')
                             ->label('Level Gula')
-                            ->maxLength(50)
-                            ->placeholder('Contoh: Normal / Sedikit'),
-                        TextInput::make('ice_level')
+                            ->options(MenuVariant::sugarLevelOptions())
+                            ->placeholder('Pilih level gula')
+                            ->native(false),
+                        Select::make('ice_level')
                             ->label('Level Es')
-                            ->maxLength(50)
-                            ->placeholder('Contoh: Normal / Sedikit'),
+                            ->options(MenuVariant::iceLevelOptions())
+                            ->placeholder('Pilih level es')
+                            ->native(false),
                     ]),
 
                 Section::make('Stok & Reminder')

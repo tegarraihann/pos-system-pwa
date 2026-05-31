@@ -1,59 +1,54 @@
-# POS System PWA
+# POS System
 
-Aplikasi POS berbasis Laravel 12 + Filament 4.
-Fitur utama: POS kasir, manajemen stok, role/permission, realtime (Reverb), PWA, dan Midtrans (opsional).
+Aplikasi POS berbasis **Laravel 12** dan **Filament 4** untuk kebutuhan:
+- POS kasir
+- manajemen menu, varian, resep, bahan baku, dan stok
+- absensi kasir dan sesi kasir
+- QR public ordering
+- laporan operasional dan laporan keuangan awal
+- migrasi data aktual coffee shop
 
-## Fitur Utama
-- POS Kasir
-- Manajemen menu, varian, resep, bahan baku
-- Manajemen user, role, permission (Spatie + Shield)
-- Absensi kasir
-- Realtime (opsional)
-- Midtrans (opsional)
-- PWA (opsional)
-- Cetak struk QZ Tray (opsional)
+Dokumen ini fokus ke **cara setup project dari nol** dengan langkah yang sederhana dan aman untuk pemula.
 
-## Kebutuhan Sistem
-- PHP 8.2 atau lebih baru
+## 1. Kebutuhan Sistem
+
+Siapkan dulu:
+- PHP **8.2** atau lebih baru
 - Composer
-- MySQL/MariaDB
+- MySQL / MariaDB
 - Node.js + npm
 - Git
 
-## Instalasi dari Nol (Urutan Aman)
-Jalankan dari terminal di folder project.
+## 2. Clone Project
 
-### 1) Clone project
-```bash
+```powershell
 git clone https://github.com/tegarraihann/pos-system-pwa.git
 cd pos-system-pwa
 ```
 
-### 2) Install dependency backend dan frontend
-```bash
+Kalau project sudah ada di folder lokal, cukup buka folder project-nya.
+
+## 3. Install Dependency
+
+```powershell
 composer install
 npm install
 ```
 
-### 3) Buat file `.env`
-PowerShell (Windows):
+## 4. Buat File `.env`
+
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Bash:
-```bash
-cp .env.example .env
-```
+## 5. Atur Database di `.env`
 
-### 4) Generate app key
-```bash
-php artisan key:generate
-```
+Contoh paling umum:
 
-### 5) Atur koneksi database di `.env`
-Contoh:
 ```env
+APP_NAME="POS System"
+APP_URL=http://127.0.0.1:8000
+
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
@@ -64,57 +59,65 @@ DB_PASSWORD=
 
 Pastikan database `pos-system` sudah dibuat di MySQL.
 
-### 6) Jalankan migrasi
-```bash
+## 6. Generate Key Aplikasi
+
+```powershell
+php artisan key:generate
+```
+
+## 7. Jalankan Migrasi
+
+```powershell
 php artisan migrate
 ```
 
-### 7) Generate policy + permission Shield (wajib)
-```bash
-php artisan shield:generate --all --panel=admin
-```
-Saat ada pertanyaan:
-- `Would you like to select what to generate?` -> `yes`
-- `What do you want to generate?` -> `Policies & Permissions`
+## 8. Seed Data Dasar Project
 
-### 8) Seed data role, user, dan data awal
-```bash
+Langkah ini membuat:
+- role dan permission dasar
+- user login default
+- lokasi stok default
+- data demo POS
+
+```powershell
 php artisan db:seed
 ```
 
-Seeder default akan menjalankan:
+Seeder default menjalankan:
 - `RolesAndPermissionsSeeder`
 - `StockLocationsSeeder`
 - `PosDemoSeeder`
 
-### 9) Reset cache permission dan cache aplikasi
-```bash
+## 9. Link Storage dan Bersihkan Cache
+
+```powershell
+php artisan storage:link
 php artisan permission:cache-reset
 php artisan optimize:clear
 ```
 
-### 10) Link storage (wajib untuk upload gambar)
-```bash
-php artisan storage:link
-```
+## 10. Jalankan Frontend dan Backend
 
-### 11) Jalankan aplikasi
 Terminal 1:
-```bash
+
+```powershell
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 Terminal 2:
-```bash
+
+```powershell
 npm run dev
 ```
 
-Lalu buka:
+Buka aplikasi di:
+
 ```text
 http://127.0.0.1:8000/admin
 ```
 
-## Akun Login Default
+## 11. Akun Login Default
+
 - Super Admin
   - Email: `superadmin@example.com`
   - Password: `password`
@@ -122,99 +125,234 @@ http://127.0.0.1:8000/admin
   - Email: `admin@example.com`
   - Password: `password`
 
-## Setup User Baru
-Jika ingin buat user baru:
-```bash
-php artisan make:filament-user
+## 12. Setup Minimum Selesai
+
+Kalau Anda hanya ingin menjalankan project dengan **data demo**, sampai langkah ini sudah cukup.
+
+---
+
+# Setup Data Aktual AHWA Warkop
+
+Bagian ini hanya dijalankan jika Anda ingin mengaktifkan:
+- master menu aktual dari data coffee shop
+- bahan baku awal
+- resep awal
+- stok awal
+- import histori penjualan April 2026 dari PDF
+
+## 13. Seed Master Data Aktual
+
+Jalankan berurutan:
+
+```powershell
+php artisan db:seed --class=AhwaWarkopMasterDataSeeder
+php artisan db:seed --class=AhwaWarkopInitialIngredientsSeeder
+php artisan db:seed --class=AhwaWarkopInitialRecipesSeeder
+php artisan db:seed --class=AhwaWarkopInitialStockSeeder
 ```
 
-Setelah user dibuat, masuk sebagai super admin lalu:
-- Buka menu `Users`
-- Set role user (misalnya `kasir` atau `admin`)
+Seeder tersebut akan membuat:
+- outlet `AHWA Warkop`
+- master menu aktual
+- bahan baku awal
+- resep awal menu prioritas
+- stok awal bahan baku
 
-## Menjalankan Realtime (Opsional)
-```bash
-php artisan reverb:start
+## 14. Import Histori Penjualan PDF ke Staging
+
+File sumber yang dipakai:
+
+```text
+docs/detil_penjualan_2026_05_22_15_08_28.pdf
 ```
 
-Jika ingin akses publik via domain + cloudflared tunnel, ikuti:
-- `docs/reverb-setup.md`
+Jalankan:
 
-## Menjalankan Midtrans (Opsional)
+```powershell
+php artisan historical:import-ahwa-sales
+```
+
+Hasilnya:
+- histori masuk ke tabel staging
+- belum langsung jadi `orders` final
+- transaksi akan diberi status:
+  - `matched`
+  - `partial`
+  - `ambiguous`
+  - `unmatched`
+
+## 15. Review Histori di Panel Admin
+
+Masuk ke panel admin lalu buka menu:
+
+```text
+Data migration > Review Histori
+```
+
+Di halaman ini Anda bisa:
+- melihat transaksi hasil import PDF
+- memeriksa transaksi yang masih `partial`, `ambiguous`, atau `unmatched`
+- membuka detail transaksi
+- review item satu per satu
+- memperbaiki master menu atau qty inferensi
+- menandai transaksi sebagai **Siap Migrasi**
+
+## 16. Migrasikan Histori yang Sudah Valid ke Order Final
+
+Setelah transaksi staging sudah direview dan statusnya **Siap Migrasi**, jalankan:
+
+```powershell
+php artisan historical:migrate-ready-orders
+```
+
+Hasilnya:
+- data masuk ke `orders`
+- item masuk ke `order_items`
+- pembayaran masuk ke `payments`
+- snapshot HPP dan laba kotor ikut dihitung
+
+Catatan penting:
+- histori **tidak mengurangi stok aktif sekarang**
+- jadi aman untuk laporan tanpa merusak stok bulan berjalan
+
+---
+
+# Integrasi Opsional
+
+Bagian ini tidak wajib untuk setup dasar.
+
+## Midtrans
+
 Isi `.env`:
+
 ```env
-MIDTRANS_SERVER_KEY=...
-MIDTRANS_CLIENT_KEY=...
+MIDTRANS_SERVER_KEY=
+MIDTRANS_CLIENT_KEY=
 MIDTRANS_IS_PRODUCTION=false
 MIDTRANS_SANITIZE=true
 MIDTRANS_3DS=true
 ```
 
-Lalu set webhook Midtrans ke:
-```text
-https://domain-anda/midtrans/notification
+Panduan tambahan:
+- [docs/midtrans.md](docs/midtrans.md)
+
+## Reverb / Realtime
+
+Jalankan:
+
+```powershell
+php artisan reverb:start
 ```
 
-Panduan detail:
-- `docs/midtrans.md`
+Panduan tambahan:
+- [docs/reverb-setup.md](docs/reverb-setup.md)
 
-## Menjalankan PWA dan Offline Cash (Opsional)
-Panduan:
-- `docs/pwa-offline.md`
+## PWA / Offline
 
-## Cetak Struk QZ Tray (Opsional)
-Jika memakai QZ Tray, siapkan:
-- file certificate
-- private key
-- env untuk QZ
+Panduan tambahan:
+- [docs/pwa-offline.md](docs/pwa-offline.md)
 
-Lalu jalankan build/dev frontend seperti biasa.
+## QZ Tray
 
-## Quick Command Checklist
-Jika ingin ringkas, ini urutan command inti:
-```bash
-composer install
-npm install
-php artisan key:generate
-php artisan migrate
-php artisan shield:generate --all --panel=admin
-php artisan db:seed
-php artisan permission:cache-reset
-php artisan storage:link
-php artisan optimize:clear
+Jika memakai cetak struk QZ Tray, siapkan env:
+
+```env
+QZ_TRAY_CERTIFICATE=
+QZ_TRAY_PRIVATE_KEY=
+```
+
+---
+
+# Perintah Harian yang Paling Sering Dipakai
+
+## Jalankan aplikasi lokal
+
+```powershell
 php artisan serve --host=127.0.0.1 --port=8000
+npm run dev
 ```
 
-## Troubleshooting
+## Kalau hanya ingin build frontend
 
-### Menu `Users` tidak muncul
-Jalankan ulang:
-```bash
-php artisan shield:generate --all --panel=admin
+```powershell
+npm run build
+```
+
+## Bersihkan cache
+
+```powershell
+php artisan optimize:clear
+php artisan permission:cache-reset
+```
+
+## Jalankan test
+
+```powershell
+php artisan test
+```
+
+---
+
+# Troubleshooting
+
+## MySQL tidak terkoneksi
+
+Kalau muncul error seperti:
+
+```text
+SQLSTATE[HY000] [2002] No connection could be made...
+```
+
+cek:
+- MySQL sudah menyala
+- `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` di `.env` sudah benar
+
+## Menu baru tidak muncul
+
+Jalankan:
+
+```powershell
 php artisan db:seed --class=RolesAndPermissionsSeeder
 php artisan permission:cache-reset
 php artisan optimize:clear
 ```
-Lalu logout dan login lagi.
 
-### Reverb gagal start (port dipakai)
-Ganti port Reverb di `.env`, contoh:
-```env
-REVERB_SERVER_PORT=8081
+lalu logout dan login lagi.
+
+## Tampilan frontend terasa tidak update
+
+Untuk development:
+
+```powershell
+npm run dev
 ```
 
-### `Invalid request (Unsupported SSL request)` saat `php artisan serve`
-Biasanya terjadi karena URL HTTPS diarahkan ke server HTTP lokal.
-Gunakan URL `http://127.0.0.1:8000` untuk akses lokal biasa.
+Untuk build statis:
 
-### Midtrans sudah paid tapi status order belum berubah
-- Pastikan webhook URL benar dan aktif
-- Cek endpoint `POST /midtrans/notification`
-- Cek log: `storage/logs/laravel.log`
+```powershell
+npm run build
+php artisan optimize:clear
+```
 
-## Dokumentasi Tambahan
-- `docs/filament-setup.md`
-- `docs/pos.md`
-- `docs/midtrans.md`
-- `docs/reverb-setup.md`
-- `docs/pwa-offline.md`
+## Import histori tidak masuk
+
+Pastikan:
+- file PDF ada di `docs/detil_penjualan_2026_05_22_15_08_28.pdf`
+- master data AHWA sudah di-seed dulu
+
+Perintah yang aman:
+
+```powershell
+php artisan db:seed --class=AhwaWarkopMasterDataSeeder
+php artisan historical:import-ahwa-sales
+```
+
+---
+
+# Dokumen Tambahan
+
+- [docs/pos.md](docs/pos.md)
+- [docs/midtrans.md](docs/midtrans.md)
+- [docs/pwa-offline.md](docs/pwa-offline.md)
+- [docs/reverb-setup.md](docs/reverb-setup.md)
+- [docs/import_histori_ahwa_warkop_april_2026.md](docs/import_histori_ahwa_warkop_april_2026.md)

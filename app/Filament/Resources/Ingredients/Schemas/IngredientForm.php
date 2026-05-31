@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Ingredients\Schemas;
 
-use App\Models\Ingredient;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
@@ -20,12 +19,6 @@ class IngredientForm
                     ->columnSpanFull()
                     ->columns(2)
                     ->schema([
-                        TextInput::make('code')
-                            ->label('Kode Bahan')
-                            ->required()
-                            ->maxLength(50)
-                            ->unique(Ingredient::class, 'code', ignoreRecord: true)
-                            ->placeholder('Contoh: GULA-001'),
                         TextInput::make('name')
                             ->label('Nama Bahan')
                             ->required()
